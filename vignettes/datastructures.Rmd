@@ -1,0 +1,60 @@
+---
+title: "Bacollite Data Structures"
+author: "Simon Hickinbotham"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+#Mass spectrometry sample data
+
+A sample requires three replicates. The data structure takes the following form: 
+
+- __name__ The name of the sample, e.g. "Norfolk_C1". (The name is used to generate output files, so it should not contain spaces).
+- __spots__ The positions of the three replicates on the spot plate, e.g. `c("A1","A4","A7")`. It is assumed that the spots will all be from the same plate. 
+
+
+
+
+
+
+
+
+#Peptide sequence data
+
+There are two sources of peptide sequences: Global Protein Machine (GPM) and Mammalian Collagen Sequence (MCS). Because they are collated from different approaches, the data structures are slightly different, reflecting the deductions that can be made regarding the likelihood of deamidation and hydroxylation level.  
+
+
+##data structure
+
+Each entry in a gpm data structure has the following elements:
+
+- __seq__ The sequence, e.g. `GPPGPPGPPGPP`
+- __nhyd__ The number of hydroxylations
+- __nglut__ The number of deamidations
+- __mass1__ The mass of the first peak in the peakset
+- __prob1__ A value indicating the probability of this level of hydroxilation (in developement)
+
+
+##GPM sequence data
+
+These data sets are based on _observed_ peptides, so we do not concern ourselves with hydroxylation probabilities - we only report what is seen. We _can_ use the frequency of observation to weight the interpretation of a peakset however.
+
+
+
+##MCS sequence data
+
+These data sets are besed on _theoretical_ peptides, so we can't be sure that they will fly in the Mass Spectrometer. 
+
+#Backward compatibility
+
+- 
+Originally, each entry in an mcs data structure had the following elements:
+
+- 
+
+
