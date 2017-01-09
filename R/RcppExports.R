@@ -9,23 +9,7 @@ timesTwo <- function(x) {
     .Call('bacollite_timesTwo', PACKAGE = 'bacollite', x)
 }
 
-helloWorld <- function() {
-    .Call('bacollite_helloWorld', PACKAGE = 'bacollite')
-}
-
-helloPerson <- function(cvname) {
-    .Call('bacollite_helloPerson', PACKAGE = 'bacollite', cvname)
-}
-
-helloNvec <- function(cvname) {
-    .Call('bacollite_helloNvec', PACKAGE = 'bacollite', cvname)
-}
-
-helloDfram <- function(cvname) {
-    .Call('bacollite_helloDfram', PACKAGE = 'bacollite', cvname)
-}
-
-helloIso <- function(cvseq) {
-    .Call('bacollite_helloIso', PACKAGE = 'bacollite', cvseq)
+cppIso <- function(cvseq) {
+    .Call('bacollite_cppIso', PACKAGE = 'bacollite', cvseq)
 }
 

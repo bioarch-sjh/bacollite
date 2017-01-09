@@ -16,57 +16,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// helloWorld
-CharacterVector helloWorld();
-RcppExport SEXP bacollite_helloWorld() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(helloWorld());
-    return rcpp_result_gen;
-END_RCPP
-}
-// helloPerson
-CharacterVector helloPerson(CharacterVector cvname);
-RcppExport SEXP bacollite_helloPerson(SEXP cvnameSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type cvname(cvnameSEXP);
-    rcpp_result_gen = Rcpp::wrap(helloPerson(cvname));
-    return rcpp_result_gen;
-END_RCPP
-}
-// helloNvec
-NumericVector helloNvec(CharacterVector cvname);
-RcppExport SEXP bacollite_helloNvec(SEXP cvnameSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type cvname(cvnameSEXP);
-    rcpp_result_gen = Rcpp::wrap(helloNvec(cvname));
-    return rcpp_result_gen;
-END_RCPP
-}
-// helloDfram
-DataFrame helloDfram(CharacterVector cvname);
-RcppExport SEXP bacollite_helloDfram(SEXP cvnameSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type cvname(cvnameSEXP);
-    rcpp_result_gen = Rcpp::wrap(helloDfram(cvname));
-    return rcpp_result_gen;
-END_RCPP
-}
-// helloIso
-DataFrame helloIso(CharacterVector cvseq);
-RcppExport SEXP bacollite_helloIso(SEXP cvseqSEXP) {
+// cppIso
+DataFrame cppIso(CharacterVector cvseq);
+RcppExport SEXP bacollite_cppIso(SEXP cvseqSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< CharacterVector >::type cvseq(cvseqSEXP);
-    rcpp_result_gen = Rcpp::wrap(helloIso(cvseq));
+    rcpp_result_gen = Rcpp::wrap(cppIso(cvseq));
     return rcpp_result_gen;
 END_RCPP
 }

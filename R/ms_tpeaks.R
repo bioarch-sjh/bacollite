@@ -14,20 +14,20 @@ ms_tpeaks <- function(sequence){
 
     failedflag <- 0
     #result <- .C("R_iso_seq", infile=as.character(sequence),mass=as.double(1:5),prob=as.double(1:5),errflag=as.integer(failedflag))
+    #R_iso_seq(rseq=as.character(sequence), xmass=as.double(1:5), xprob=as.double(1:5), failed=as.integer(failedflag))
+    #message(xmass)
 
-    R_iso_seq(rseq=as.character(sequence), xmass=as.double(1:5), xprob=as.double(1:5), failed=as.integer(failedflag))
-
-    message(xmass)
+    result<-cppIso(sequence)
 
 
     #TODO: Check the failed flag
 
-    #return (result)
+    return (result)
 
   }
   else{
     message("Input string must contain only uppercase alphabeticial characters")
-    return(1)
+    return(NA)
 
   }
 }

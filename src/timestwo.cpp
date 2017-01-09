@@ -101,7 +101,7 @@ DataFrame helloDfram(CharacterVector cvname){
 
 
 // [[Rcpp::export]]
-DataFrame helloIso(CharacterVector cvseq){
+DataFrame cppIso(CharacterVector cvseq){
 
 	std::string cppseq = Rcpp::as<std::string>(cvseq);
 
@@ -123,5 +123,10 @@ DataFrame helloIso(CharacterVector cvseq){
 }
 
 
+
+/*** R
+x<-cppIso("GPPGPPGPPGPP")
+pri
+*/
 
 

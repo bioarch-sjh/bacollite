@@ -28,10 +28,10 @@
 #include <string.h>
 #include <math.h>
 
-#include <Rcpp.h>
-using namespace Rcpp;
+//#include <Rcpp.h>
+//using namespace Rcpp;
 
-/* DELETED THESSE FILES TO MAKE LINKING EASIER!!
+/* DELETED THESE FILES TO MAKE LINKING EASIER!!
 #include "constants.h"
 #include "getline.h"
 #include "isodists.h"
@@ -596,7 +596,9 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
 
       imass = getIsoDist(i, element, NUMELEMENTS, peptide, dist);
 
+#ifdef DEBUG_R
       printf("calculated mass %f\n", imass);
+#endif      
       if(check)
         if (fabs(imass-pep[i].pepmass) > 1.5) printf("ERROR: SOMETHING IS WRONG HERE, THE DIFERENCE BETWEEN THE GIVEN AND CALCULATED MASSES IS %d\n", (int)(fabs(imass-pep[i].pepmass)+0.5));
     }
