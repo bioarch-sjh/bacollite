@@ -9,7 +9,6 @@ License: What license is it under?
 LazyData: TRUE
 Imports:
     stringr,
-    q2e,
     bioarch,
     Rcpp
 Remotes: github::franticspider/bioarch/bioarch
