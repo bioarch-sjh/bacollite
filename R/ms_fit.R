@@ -1,5 +1,10 @@
 
 
+#' Match a set of peptides with a Mass Spec
+#'
+#' @param peptides the set of peptides
+#' @param sample the MS sample data
+#' @export
 ms_fit<-function(peptides,sample){
 
   #initialise:

@@ -3,8 +3,6 @@
 #'
 #' @param species the name of the species whose peptides will be loaded.
 #' @export
-#' @examples
-#' hcs <- load.mcs("human")
 load.sample <- function(froot,name,spots){
 
   # TODO: These are example values:

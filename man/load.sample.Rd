@@ -12,7 +12,4 @@ load.sample(froot, name, spots)
 \description{
 Load mass spec data from a 2-column space-delimited text file
 }
-\examples{
-hcs <- load.mcs("human")
-}
 

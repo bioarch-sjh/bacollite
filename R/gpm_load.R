@@ -1,8 +1,11 @@
 
 
 
-
 #TODO: get the info from google sheets....
+#' Load a set of peptides from the Global Protein Machine
+#'
+#' @param fn full path of the raw gpm text file
+#' @export
 load.gpm <- function(fn="~/tmp/bioarch_keri/161208meeting/gmp_human_collagen.dat"){
 
 

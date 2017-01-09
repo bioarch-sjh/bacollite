@@ -10,11 +10,12 @@ LazyData: TRUE
 Imports:
     stringr,
     q2e,
-    bioarch
-Remotes: github::franticspider/q2e/q2e,
-    github::franticspider/bioarch/bioarch
+    bioarch,
+    Rcpp
+Remotes: github::franticspider/bioarch/bioarch
 RoxygenNote: 5.0.1
 Suggests: knitr,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
+LinkingTo: Rcpp
