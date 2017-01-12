@@ -27,24 +27,104 @@ load.sample <- function(froot,name,spots){
 
 
 
+
+
+#' Get the species index in the mammalian_collagen_sequences sheet
+#'
+#' @param species the name of the species whose peptides will be loaded.
+#' @export
+#' @examples
+#' hcd <- ts_index(sheet,"human")
+ts_index <- function(sheet,spp){
+
+  #TODO: There is surely a more efficient way of doing this...
+  found <- F
+  spidx <- 0
+  for(i in 1:nrow(sheet)){
+    if(grepl(spp,sheet[i,1],ignore.case=TRUE)){
+      if(!found){
+        message(sprintf("FOUND: index is %d, search term is \"%s\"",i,sheet[i,1]))
+        found <- T
+        spidx <- i
+      }
+      else{
+        message(sprintf("Further match found at  index %d, search term is \"%s\" - this entry will be ignored",i,sheet[i,1]))
+      }
+    }
+  }
+  if(!found){
+    message("Match not found, exiting")
+    return (-1)
+  }
+  return (spidx)
+}
+
+
+
+
+
+#we know start and end, so we can calculate n_hyds in this range
+#phydp <- get_hydroxylations(sheet,start,end)
+get_hydroxylations <- function(sheet,start,end,dopause=T){
+
+
+  hidx<-ts_index(sheet,"hydroxylation")
+  if(hidx<0){
+    readline("Couldn't find the hydroxylation row - check the sheet!\nhit <return> to continue")
+  }
+
+  #message("pos\tprob")
+  #TODO: this is redundant if the method below works...
+  #for(i in start:end){
+  #	message(sprintf("%d\t%f",i,sheet[hidx,i]))
+  #}
+
+  #TODO: Check this is a better method:
+  d <- as.numeric(sheet[hidx,start:end])
+  i <- (start-4):(end-4)
+
+  hoffset <- -16
+  output<-data.frame(helixpos=i[which(d>0)]+hoffset,pos=i[which(d>0)],prob=d[which(d>0)])
+
+  message(sprintf("start=%d; end=%d\n",start,end))
+  if(nrow(output)>0)
+    print(output)
+  else
+    message("No ",appendLF=F)
+
+  message("Hydroxylation probs found")
+  #\nhit <return> to continue")
+
+  return(output)
+
+}
+
+
+
+
+
+
+
 #' Load peptides from the mammalian collagen sequences googlesheet
 #'
 #' @param species the name of the species whose peptides will be loaded.
+#' @export
 #' @examples
 #' hcs <- load.mcs("human")
-load.mcs<-function(spp, fromgs = T){
+load.mcs<-function(spp, sheet=bioarch_mammal_sequences,verbose=F){
 
-  sheet <- NA
-  if(fromgs){
-    message("Fetching the sheet of mammalian collagen sequences")
-    #TODO: make sure this is public, OR store it as data..
-    mcs <- gs_title("Mammalian Collagen Sequences v0.0.1")
-    sheet <- gs_read(mcs)
-  }
-  else{
-    message("ERROR: can't currently load from anywhere but google sheets\nuse fromgs=T")
-    return(NA)
-  }
+#  sheet <- NA
+#  if(fromgs){
+#    message("Fetching the sheet of mammalian collagen sequences")
+#    #TODO: make sure this is public, OR store it as data..
+#    #mcs <- gs_title("Mammalian Collagen Sequences v0.0.1")
+#    mcs <- gs_title("Mammalian Collagen Sequences v0.0.2")
+#    sheet <- gs_read(mcs)
+#  }
+#  else{
+#    message("ERROR: can't currently load from anywhere but google sheets\nuse fromgs=T")
+#    return(NA)
+#  }
 
   spidx<-ts_index(sheet,spp)
   if(spidx<0){
@@ -57,16 +137,22 @@ load.mcs<-function(spp, fromgs = T){
   start<-4
   count<-1
 
+  sdata <- data.frame(seq=as.character(),nhyd=as.integer(),nglut=as.integer(),mass1=as.numeric(),prob1=as.numeric)
+
 
   for(j in start:endcol){
     #when we hit a cut point:
     if(grepl("K|R",sheet[spidx,j])){
+
+
 
       count<-count+1
       message(sprintf("%s\n%d:\t",sheet[spidx,j],count),appendLF=F)
       end=j
 
       sequence <- paste0(sheet[spidx,start:end],collapse="")
+
+      #readline(sprintf("Found sequence %s\nhit <return> to process",sequence))
 
       nhyd <- str_count(sequence,"P")
       nglut <- str_count(sequence,"Q") + str_count(sequence,"N")
@@ -87,7 +173,9 @@ load.mcs<-function(spp, fromgs = T){
 
         hdat <- data.frame(hdat,t(pnh$prob))
 
-        #readline("Calculated Nhyd prob\nhit<return> to continue")
+        if(verbose){
+          message("Calculated Nhyd prob")
+        }
       }
       else{
         message("No hydroxylation probabilities for this sequence")
@@ -97,12 +185,16 @@ load.mcs<-function(spp, fromgs = T){
       }
 
 
+      #readline("hit <return> to continue...\n")
+      start = j+1
 
     }
     else{
 
     }
-
   }
-
+  return(hdat)
 }
+
+
+

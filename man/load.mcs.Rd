@@ -4,7 +4,7 @@
 \alias{load.mcs}
 \title{Load peptides from the mammalian collagen sequences googlesheet}
 \usage{
-load.mcs(spp, fromgs = T)
+load.mcs(spp, sheet = bioarch_mammal_sequences, verbose = F)
 }
 \arguments{
 \item{species}{the name of the species whose peptides will be loaded.}

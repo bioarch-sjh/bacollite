@@ -31,7 +31,7 @@
 //#include <Rcpp.h>
 //using namespace Rcpp;
 
-/* DELETED THESE FILES TO MAKE LINKING EASIER!!
+/* DELETED THESSE FILES TO MAKE LINKING EASIER!!
 #include "constants.h"
 #include "getline.h"
 #include "isodists.h"
@@ -151,9 +151,7 @@ DataFrame R_iso_seq(String rseq){//}, NumericVector xmass, NumericVector xprob, 
   const int numpep = 1;
   const int numiso = 5;
 
-  int k,m,tmp;
-  float ftmp;
-  FILE *fin = NULL;
+  int k,m;
 
 #ifdef DEBUG_R
   printf("Inside R_iso_seq, sequence is %s, length is %d\n",pseq,strlen(pseq));
@@ -221,15 +219,7 @@ DataFrame R_iso_seq(String rseq){//}, NumericVector xmass, NumericVector xprob, 
     free (dist);
   }
 
-
   freePepArray(pep,numpep);
-
-  //return 5.7;
-
-  //Rcpp::DataFrame rdf = Rcpp::DataFrame::create(Named("mass")=xmass,Named("prob")=xprob);
-
-  //return(rdf);
-  //return;
 
 }
 
@@ -238,120 +228,6 @@ DataFrame R_iso_seq(String rseq){//}, NumericVector xmass, NumericVector xprob, 
 
 
 
-
-/****************************************
-Procedure:     R iso main
-*****************************************/
-void R_iso_main (char **argv1, double *resultmass, double *resultprob, int *failed)
-{
-
-  /* Check that we have the correct number of files */
-  //if (argc != 2 ) printf("Correct program useage: ./iso [peptide filelist] \n");
-  //else
-  //{
-  FILE *fin = NULL;
-  int k,m, zs;
-  int numpep;
-  float ftmp;
-  int tmp, dtmp;
-
-  const int numiso=5;
-
-  *failed = 0;
-
-#ifdef DEBUG_R
-  printf("Loading %s\n",argv1[0]);fflush(stdout);
-#endif
-
-
-  /**************
-  read the number of peptides that isotope distribution is to be calculated for
-  **************/
-
-  /* Open the file */
-  if((fin = fopen(argv1[0], "r"))==NULL){
-    printf("Failed to open file %s, exiting isodists\n",argv1[0]);
-    *failed=1;
-    return;
-  }
-
-  /* Read the number of peptides, store it in numpep */
-  tmp = fscanf(fin, "%d\n", &dtmp);
-  numpep = dtmp;
-
-
-  /* allocate and initialise the PEPTIDE array */
-  PEPTIDE *pep = NULL;
-  //pep = (PEPTIDE *) malloc (numpep * sizeof(PEPTIDE));
-  //for (k = 0; k < numpep; k++)
-  //{
-  //  pep[k].numseq = (int*) malloc (MAXLINE * sizeof(int));
-  //  /* found is not used here but is necessary to share isodists.c with QtoE */
-  //  pep[k].found = 1;
-  //}
-  pep = allocPepArray(numpep);
-
-  /* allocate and initialise the ISODIST array */
-  ISODIST  *dist = NULL;
-  //dist = (ISODIST*) malloc (numpep * sizeof(ISODIST));
-  //for (k = 0; k < numpep; k++)
-  //{
-  //  dist[k].mass = (double*) malloc (5 * sizeof(double));
-  //  dist[k].prob = (double*) malloc (5 * sizeof(double));
-  //}
-  dist = allocDistArray(numpep);
-
-
-  /* Now calculate the masses and probs */
-  for (k = 0; k < numpep; k++)
-  {
-    /* read peptide's m/z (this is monoisotopic mass) */
-    tmp = fscanf(fin, "%f ", &ftmp);
-
-    /* peptide should be observed at monoisotopic mass + 1 (for charge) */
-    pep[k].pepmass = ftmp + 1.0;
-
-    /* Get the sequence and its length from the remainder of the line*/
-    pep[k].length = isogetLine(fin, pep[k].numseq, &zs);
-
-    pep[k].zs = zs;
-
-    R_iso(pep, numpep, dist, 1);
-
-#ifdef DEBUG_R
-    printf("observed isotope distribution:\n");
-    printf("%0.1f: %0.9f\n", pep[k].pepmass, dist[k].prob[0]);
-    printf("%0.1f: %0.9f \n" ,pep[k].pepmass + 1.0, dist[k].prob[1]);
-    printf("%0.1f: %0.9f \n", pep[k].pepmass + 2.0, dist[k].prob[2]);
-    printf("%0.1f: %0.9f \n", pep[k].pepmass + 3.0, dist[k].prob[3]);
-    printf("%0.1f: %0.9f \n", pep[k].pepmass + 4.0, dist[k].prob[4]);
-
-    printf("Populating R structures\n");
-#endif
-
-    for(m=0;m<numiso;m++){
-#ifdef DEBUG_R
-      printf("Isotope %d: mass is %f, prob is %f\n",m,pep[k].pepmass,dist[k].prob[m]);
-#endif
-      resultmass[m] = pep[k].pepmass + (1.0 * m);
-      resultprob[m] = dist[k].prob[m];
-    }
-
-    for (k = 0; k < numpep; k++)
-    {
-      free (dist[k].mass);
-      free (dist[k].prob);
-    }
-    free (dist);
-  }
-
-  freePepArray(pep,numpep);
-
-  //return(Rcpp::DataFrame::create(xmass,xprob));
-
-  //}
-  //return 0;
-}
 
 
 
@@ -475,9 +351,8 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
 
   const int TAMINODATA[3][2] = {{0,1},{2,3},{4,5}};
 
-  int x = TAMINODATA[0][0];
-
 #ifdef DEBUG_R
+  int x = TAMINODATA[0][0];
   printf("x = %d\n",x);
 #endif
 
@@ -516,7 +391,7 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
   /* number of different isotopes in isotope table */
   int numiso = 5;//TODO: This should use the constant NUMISOTOPES
 
-  double imass;
+  double imass = 0.;
 
   int i, j, k;
 
@@ -598,7 +473,7 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
 
 #ifdef DEBUG_R
       printf("calculated mass %f\n", imass);
-#endif      
+#endif
       if(check)
         if (fabs(imass-pep[i].pepmass) > 1.5) printf("ERROR: SOMETHING IS WRONG HERE, THE DIFERENCE BETWEEN THE GIVEN AND CALCULATED MASSES IS %d\n", (int)(fabs(imass-pep[i].pepmass)+0.5));
     }

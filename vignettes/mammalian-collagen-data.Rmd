@@ -1,0 +1,19 @@
+---
+title: "Mammalian Collagen Data"
+author: "Simon Hickinbotham"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Mammalian Collagen Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+The core of the bacollite package is the use of collagen sequence data to interpret mass spectra. This vignette shows how to use bacollite to access the bioarch mamallian collagen sequence datasheet. 
+
+We'll document two methods. The first is to access the mamallian collagen data that is stored within the bacollite package. The second is to directly access the version of the document stored on googlesheets. We'll also see how to store this. 
+
+## Mammalian Collagen Data
+
+To analyse a mass spec, we need a theoretical spectrum to compare with. The first step in generating this spectrum is to access a collagen sequence. A set of these is available through this command, where we are accessing the human sequence: 

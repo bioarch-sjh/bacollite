@@ -4,7 +4,7 @@
 \alias{ms_tpeaks}
 \title{Wrapper for the 'R_iso_seq' q2e c function, to get theoretical peaks from a sequence}
 \usage{
-ms_tpeaks(sequence)
+ms_tpeaks(sequence, verbose = F)
 }
 \arguments{
 \item{seqeunce}{the amino acid sequence}
