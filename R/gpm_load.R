@@ -6,7 +6,7 @@
 #'
 #' @param fn full path of the raw gpm text file
 #' @export
-load.gpm <- function(fn="~/tmp/bioarch_keri/161208meeting/gmp_human_collagen.dat"){
+load.gpm.raw <- function(fn=NA,colno=NA){
 
 
   gpm <- read.table(fn,
@@ -15,7 +15,7 @@ load.gpm <- function(fn="~/tmp/bioarch_keri/161208meeting/gmp_human_collagen.dat
   gpm2 <- data.frame(seq=as.character(gpm$sequence),
                      nhyd = stringr::str_count(gpm$modifications,"P"),
                      nglut = (stringr::str_count(gpm$modifications,"Q")+stringr::str_count(gpm$modifications,"N")),
-                     mass1=0, prob1=0 )
+                     mass1=0, prob=0 )
 
   gpm2 <- unique(gpm2)
 
@@ -23,9 +23,9 @@ load.gpm <- function(fn="~/tmp/bioarch_keri/161208meeting/gmp_human_collagen.dat
 
     #get the mass data...
 
-    cd1 <- q2e::q2e_tpeaks(gpm2$seq[i])
+    cd1 <- ms_tpeaks(gpm2$seq[i])
     gpm2$mass1[i] = cd1$mass[1] +  (gpm2$nglut[i]*0.984015)+(gpm2$nhyd[i]*16)
-    gpm2$prob1[i] = cd1$prob[1]
+    gpm2$prob[i] = cd1$prob[1]
   }
 
   #remove outliers
@@ -37,6 +37,41 @@ load.gpm <- function(fn="~/tmp/bioarch_keri/161208meeting/gmp_human_collagen.dat
   #convert the seq column to string format:
   gpm2$seq <- sapply(gpm2$seq, as.character)
 
+  #add the collagen number
+  if(!is.na(colno)){
+    gpm2$col<-colno
+  }
+
   return(gpm2)
 
 }
+
+
+
+
+#TODO: get the info from google sheets....including the observation counts
+#' Load a set of peptides from the Global Protein Machine
+#'
+#' @param fn full path of the raw gpm text file
+#' @export
+#' @example
+#' gpm<-load.gpm()
+load.gpm <- function(col1fn=NA,col2fn=NA){
+
+  if(is.na(col1fn))
+    col1fn<-system.file("extdata", "gpm_human_collagen_COL1A1.dat", package = "bacollite")
+  col1seqs<-load.gpm.raw(col1fn,colno=1)
+
+  if(is.na(col2fn))
+    col2fn<-system.file("extdata", "gpm_human_collagen_COL1A2.dat", package = "bacollite")
+  col2seqs<-load.gpm.raw(col2fn,colno=2)
+
+  gpm <- rbind(col1seqs,col2seqs)
+
+  #Sort by mass
+  gpm <- gpm[order(gpm$mass1),]
+
+  return(gpm)
+
+}
+

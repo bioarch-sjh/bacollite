@@ -5,6 +5,16 @@ output: html_document
 
 #Getting help
 
+##Functions
+
+```
+bacollite::    # lists availble functions in a pop-out in rstudio
+help(foo)      # help about function foo
+?foo           # same thing 
+apropos("foo") # list all functions containing string foo
+example(foo)   # show an example of function foo
+```
+
 ##Vignettes
 
 

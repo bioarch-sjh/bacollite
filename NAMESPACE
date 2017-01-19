@@ -2,6 +2,7 @@
 
 export(ba_nhyd)
 export(load.gpm)
+export(load.gpm.raw)
 export(load.mcs)
 export(load.sample)
 export(ms_fit)
