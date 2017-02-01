@@ -4,7 +4,7 @@
 \alias{ts_index}
 \title{Get the species index in the mammalian_collagen_sequences sheet}
 \usage{
-ts_index(sheet, spp)
+ts_index(sheet, spp, verbose = F)
 }
 \arguments{
 \item{species}{the name of the species whose peptides will be loaded.}

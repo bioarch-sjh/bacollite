@@ -55,8 +55,6 @@ load.gpm.raw <- function(fn=NA,colno=NA){
 #' @param col1fn full path of the raw gpm text file for collagen 1
 #' @param col2fn full path of the raw gpm text file for collagen 1
 #' @export
-#' @examples
-#' gpm<-load.gpm()
 load.gpm <- function(col1fn=NA,col2fn=NA){
 
   if(is.na(col1fn))

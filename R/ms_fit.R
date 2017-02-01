@@ -6,7 +6,7 @@
 #' @param sample the MS sample data
 #' @return a logical vector stating which peptides match the data
 #' @export
-ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
+ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim=0.6){
 
   #initialise:
   plotno <- 0
@@ -22,6 +22,10 @@ ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
   cors <- matrix(nrow=nrow(peptides),ncol=3)
   cors[] < -0
 
+  ions <- matrix(nrow=nrow(peptides),ncol=3)
+  ions[] <- 0
+
+  sumions= c(sum(sample$s1$intensity),sum(sample$s2$intensity),sum(sample$s3$intensity))
 
   for(i in 1:nrow(peptides)){
 
@@ -33,8 +37,10 @@ ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
     cd1$mass <- cd1$mass + (peptides$nglut[i]*0.984015)+(peptides$nhyd[i]*16)
 
     #TEST
-    if(abs(cd1$mass[1]-peptides$mass1[i]) > 0.01){
-      readline(sprintf("ERROR: mass calculation problem:\ncd1$mass[1]=%f\npeptides$mass1 = %f",cd1$mass[1],peptides$mass1))
+    if(abs(cd1$mass[1]-peptides$mass1[i]) > 0.05){
+      readline(sprintf("ERROR: Peptide %d mass calculation problem:\ncd1$mass[1]=%f\npeptides$mass1 = %f\nnhyd = %d, nglut = %d, seq = %s",
+                       i,cd1$mass[1],peptides$mass1[i],
+                       peptides$nhyd[i],peptides$nglut[i],peptides$seq[i]))
       return (NA)
     }
 
@@ -45,7 +51,7 @@ ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
     #TODO: consolidate with the _rams_ function...
     ###########################################################
     #RESTRICTION: Only do this for the range we have data for #
-    if(max(cd1$mass) > 800 && min(cd1$mass) < 3500){
+    if((max(cd1$mass) > 800 && min(cd1$mass) < 3500)| forceplot) {
 
       if(vlevel>3){
         message(sprintf("Sequence is %s\nThere are %d prolines in this segment",
@@ -77,7 +83,7 @@ ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
       }
 
 
-      if(enough_ions){
+      if(enough_ions | forceplot){
         message(sprintf("Max intensity  ratio sufficient in this segment (%f > %f) ", max(subms1[,2]), mir*max(sample$s1[,2]) ))
 
         cdshift <-cd1
@@ -101,6 +107,10 @@ ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
         cors[i,2]<-align2$cor
         cors[i,3]<-align3$cor
 
+        ions[i,1]<- sum( sample$s1$intensity[ (sample$s1$mass > (cd1$mass[1] + align1$lag - 0.5)) &  (sample$s1$mass < (cd1$mass[1] + align1$lag + 4.5)) ]  )/sumions[1]
+        ions[i,2]<- sum( sample$s2$intensity[ (sample$s2$mass > (cd1$mass[1] + align2$lag - 0.5)) &  (sample$s2$mass < (cd1$mass[1] + align2$lag + 4.5)) ]  )/sumions[2]
+        ions[i,3]<- sum( sample$s3$intensity[ (sample$s3$mass > (cd1$mass[1] + align3$lag - 0.5)) &  (sample$s3$mass < (cd1$mass[1] + align3$lag + 4.5)) ]  )/sumions[3]
+
         hitplot=F
         if(abs(align1$lag) < laglim & align1$cor > corlim)
         { hitplot=T}
@@ -109,14 +119,15 @@ ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
         if(abs(align3$lag) < laglim & align3$cor > corlim)
         { hitplot=T}
 
-        if(hitplot){
+
+        if(hitplot | forceplot){
 
           plotno = plotno+1
 
           hits[i]<-T
 
 
-          if(doplot){
+          if(doplot | forceplot){
 
             message(sprintf("\nPlot number %d\nSegment at row %d of %d",
                             plotno,i,nrow(peptides)))
@@ -184,8 +195,8 @@ ms_fit<-function(peptides,sample,doplot=T,vlevel=0,corlim=0.0,laglim=0.6){
 
   message(sprintf("%d theoretical peptides in range",count))
 
-  alignments <- data.frame(hit=hits,lag=lags,cor=cors)
-  colnames(alignments)<- c("hit","lag1","lag2","lag3","cor1","cor2","cor3")
+  alignments <- data.frame(hit=hits,lag=lags,cor=cors, ion = ions)
+  colnames(alignments)<- c("hit","lag1","lag2","lag3","cor1","cor2","cor3","ion1","ion2","ion3")
 
   return(alignments)
 }

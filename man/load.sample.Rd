@@ -4,7 +4,7 @@
 \alias{load.sample}
 \title{Load mass spec data from a 2-column space-delimited text file}
 \usage{
-load.sample(froot, name, spots)
+load.sample(froot, name = "Sample", spots)
 }
 \arguments{
 \item{species}{the name of the species whose peptides will be loaded.}

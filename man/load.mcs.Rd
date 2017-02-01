@@ -4,7 +4,8 @@
 \alias{load.mcs}
 \title{Load peptides from the mammalian collagen sequences googlesheet}
 \usage{
-load.mcs(spp, sheet = bioarch_mammal_sequences, verbose = F)
+load.mcs(spp = "human", sheet = bioarch_mammal_sequences, massmin = 800,
+  massmax = 3500, verbose = F)
 }
 \arguments{
 \item{species}{the name of the species whose peptides will be loaded.}
@@ -13,6 +14,7 @@ load.mcs(spp, sheet = bioarch_mammal_sequences, verbose = F)
 Load peptides from the mammalian collagen sequences googlesheet
 }
 \examples{
-hcs <- load.mcs("human")
+hcs <- load.mcs()
+hcs <- load.mcs("goat")
 }
 

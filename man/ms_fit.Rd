@@ -4,12 +4,16 @@
 \alias{ms_fit}
 \title{Match a set of peptides with a Mass Spec}
 \usage{
-ms_fit(peptides, sample)
+ms_fit(peptides, sample, doplot = T, forceplot = F, vlevel = 0,
+  corlim = 0, laglim = 0.6)
 }
 \arguments{
 \item{peptides}{the set of peptides}
 
 \item{sample}{the MS sample data}
+}
+\value{
+a logical vector stating which peptides match the data
 }
 \description{
 Match a set of peptides with a Mass Spec
