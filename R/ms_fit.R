@@ -2,11 +2,26 @@
 
 #' Match a set of peptides with a Mass Spec
 #'
-#' @param peptides the set of peptides
-#' @param sample the MS sample data
-#' @return a logical vector stating which peptides match the data
+#' @param peptides the set of peptides, in bacollite format
+#' @param sample the MS sample data, in bacollite format
+#' @param doplot boolean to say if the fit should be plotted
+#' @param force boolean to say if *all* fits should be calculated, instead of just the good matches
+#' @param vlevel verbose level. 0 means no comments, 3 means full comments
+#' @param corlim threshold for correlation scores
+#' @param laglim threshold for lag scores
+#' @return a dataframe holding the following fields:
+#'   \item{hit}{Whether a match was found for this peptide}
+#'   \item{lag1}{The lag for sample 1}
+#'   \item{lag2}{The lag for sample 2}
+#'   \item{lag3}{The lag for sample 3}
+#'   \item{cor1}{The correlation coefficient for sample 1}
+#'   \item{cor2}{The correlation coefficient for sample 2}
+#'   \item{cor3}{The correlation coefficient for sample 3}
+#'   \item{ion1}{The proportion of total ions for this peptide in sample 1}
+#'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
+#'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim=0.6){
+ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6){
 
   #initialise:
   plotno <- 0
@@ -51,7 +66,7 @@ ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim
     #TODO: consolidate with the _rams_ function...
     ###########################################################
     #RESTRICTION: Only do this for the range we have data for #
-    if((max(cd1$mass) > 800 && min(cd1$mass) < 3500)| forceplot) {
+    if((max(cd1$mass) > 800 && min(cd1$mass) < 3500)| force) {
 
       if(vlevel>3){
         message(sprintf("Sequence is %s\nThere are %d prolines in this segment",
@@ -83,9 +98,10 @@ ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim
       }
 
 
-      if(enough_ions | forceplot){
-        message(sprintf("Max intensity  ratio sufficient in this segment (%f > %f) ", max(subms1[,2]), mir*max(sample$s1[,2]) ))
-
+      if(enough_ions | force){
+        if(vlevel > 0){
+          message(sprintf("Max intensity  ratio sufficient in this segment (%f > %f) ", max(subms1[,2]), mir*max(sample$s1[,2]) ))
+        }
         cdshift <-cd1
         #cdshift$mass <- cd1$mass + (peptides$nglut[i]*0.984015)+(peptides$nhyd[i]*16)
 
@@ -95,10 +111,11 @@ ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim
         align2 <- ms_align(cdshift,subms2,myxlim)
         align3 <- ms_align(cdshift,subms3,myxlim)
 
-        message(sprintf("align1$lag is %0.3f, cor is %0.3f",align1$lag,align1$cor))
-        message(sprintf("align2$lag is %0.3f, cor is %0.3f",align2$lag,align2$cor))
-        message(sprintf("align3$lag is %0.3f, cor is %0.3f",align3$lag,align3$cor))
-
+        if(vlevel > 0){
+          message(sprintf("align1$lag is %0.3f, cor is %0.3f",align1$lag,align1$cor))
+          message(sprintf("align2$lag is %0.3f, cor is %0.3f",align2$lag,align2$cor))
+          message(sprintf("align3$lag is %0.3f, cor is %0.3f",align3$lag,align3$cor))
+        }
         lags[i,1]<-align1$lag
         lags[i,2]<-align2$lag
         lags[i,3]<-align3$lag
@@ -120,30 +137,19 @@ ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim
         { hitplot=T}
 
 
-        if(hitplot | forceplot){
+        if(hitplot | force){
 
           plotno = plotno+1
 
           hits[i]<-T
 
 
-          if(doplot | forceplot){
+          if( doplot ){
 
-            message(sprintf("\nPlot number %d\nSegment at row %d of %d",
+            if(vlevel > 0){
+              message(sprintf("\nPlot number %d\nSegment at row %d of %d",
                             plotno,i,nrow(peptides)))
-            #0.984015 - if Q changes to E - add this much....
-
-            #TODO: start-4 is used a few times - so it needs setting as a variable
-            #if(nrow(phydp)>0){
-            #	mymain <- sprintf(
-            #	"plot %d, seqpos %d\n%s\nnglut = %d/%d, nhyd = %d/%d, hp=%0.4f (max = %0.4f)",
-            #	plotno,start-4,sequence,e,nglut,p,nhyd,pnh$prob[which(pnh$nhyd == p)],max(pnh$prob))
-            #}
-            #else{
-            #	mymain <- sprintf(
-            #	"plot %d, seqpos %d\n%s\nnglut = %d/%d, nhyd = %d/%d, hp=UNKNOWN",
-            #	plotno,start-4,sequence,e,nglut,p,nhyd)
-            #}
+            }
 
             mymain <- sprintf(
               "plot %d, entry %d, mass %0.3f\n%s\nndean = %d, nhyd = %d lag: %0.2f,%0.2f,%0.2f cor: %0.2f,%0.2f,%0.2f",
@@ -156,12 +162,6 @@ ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim
             plot(1, type="n", xlab="Mass", ylab = "Probability",
                  xlim=myxxlim, ylim=c(0, 1), main=mymain)
 
-            #legend('topright',spots,'pre-align'), lty = c(1,1,1,1),
-            #	   col=c('red','green','blue','grey'),ncol=1,bty ="n")
-
-            #ba_plotseqpeaks(cd1,myxlim)
-
-            #cc = cc+1;
             x <- cd1$mass # + (peptides$nglut[i]*0.984015)+(peptides$nhyd[i]*16)
             y <- cd1$prob
 
@@ -170,30 +170,31 @@ ms_fit<-function(peptides,sample,doplot=T,forceplot=F,vlevel=0,corlim=0.0,laglim
 
             #####################
 
-
             ms_offset_peaklineplot(sample$s1,0,"grey")
             ms_offset_peaklineplot(sample$s2,0,"grey")
             ms_offset_peaklineplot(sample$s3,0,"grey")
-
 
             ms_offset_peaklineplot(sample$s1,align1$lag,"red")
             ms_offset_peaklineplot(sample$s2,align2$lag,"green")
             ms_offset_peaklineplot(sample$s3,align3$lag,"blue")
 
-            #readline("hit <return> to continue")
           }
         }
       }
 
     }
     else{
-      message(sprintf("Mass %0.2f out of range",cd1$mass[1]))
+      if(vlevel > 0){
+        message(sprintf("Mass %0.2f out of range",cd1$mass[1]))
+      }
     }
 
 
   }
 
-  message(sprintf("%d theoretical peptides in range",count))
+  if(vlevel > 0){
+    message(sprintf("%d theoretical peptides in range",count))
+  }
 
   alignments <- data.frame(hit=hits,lag=lags,cor=cors, ion = ions)
   colnames(alignments)<- c("hit","lag1","lag2","lag3","cor1","cor2","cor3","ion1","ion2","ion3")

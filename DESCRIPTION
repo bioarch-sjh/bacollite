@@ -7,9 +7,9 @@ Authors@R: person("First", "Last", email = "first.last@example.com", role = c("a
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
 LazyData: TRUE
+Depends: stringr,
+    bioarch
 Imports:
-    stringr,
-    bioarch,
     Rcpp
 Remotes: github::franticspider/bioarch/bioarch
 RoxygenNote: 5.0.1

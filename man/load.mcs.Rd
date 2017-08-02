@@ -8,7 +8,15 @@ load.mcs(spp = "human", sheet = bioarch_mammal_sequences, massmin = 800,
   massmax = 3500, verbose = F)
 }
 \arguments{
-\item{species}{the name of the species whose peptides will be loaded.}
+\item{spp}{the name of the species whose peptides will be loaded.}
+
+\item{sheet}{the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences}
+
+\item{massmin}{the minimum mass for a sequence to be returned. Defaults to 800}
+
+\item{massmax}{the maximum mass for a sequence to be returned. Defaults to 3500}
+
+\item{verbose}{verbose processing with more detail. Useful for debugging}
 }
 \description{
 Load peptides from the mammalian collagen sequences googlesheet

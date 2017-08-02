@@ -4,16 +4,36 @@
 \alias{ms_fit}
 \title{Match a set of peptides with a Mass Spec}
 \usage{
-ms_fit(peptides, sample, doplot = T, forceplot = F, vlevel = 0,
-  corlim = 0, laglim = 0.6)
+ms_fit(peptides, sample, doplot = T, force = F, vlevel = 0, corlim = 0,
+  laglim = 0.6)
 }
 \arguments{
-\item{peptides}{the set of peptides}
+\item{peptides}{the set of peptides, in bacollite format}
 
-\item{sample}{the MS sample data}
+\item{sample}{the MS sample data, in bacollite format}
+
+\item{doplot}{boolean to say if the fit should be plotted}
+
+\item{force}{boolean to say if *all* fits should be calculated, instead of just the good matches}
+
+\item{vlevel}{verbose level. 0 means no comments, 3 means full comments}
+
+\item{corlim}{threshold for correlation scores}
+
+\item{laglim}{threshold for lag scores}
 }
 \value{
-a logical vector stating which peptides match the data
+a dataframe holding the following fields:
+  \item{hit}{Whether a match was found for this peptide}
+  \item{lag1}{The lag for sample 1}
+  \item{lag2}{The lag for sample 2}
+  \item{lag3}{The lag for sample 3}
+  \item{cor1}{The correlation coefficient for sample 1}
+  \item{cor2}{The correlation coefficient for sample 2}
+  \item{cor3}{The correlation coefficient for sample 3}
+  \item{ion1}{The proportion of total ions for this peptide in sample 1}
+  \item{ion2}{The proportion of total ions for this peptide in sample 2}
+  \item{ion3}{The proportion of total ions for this peptide in sample 3}
 }
 \description{
 Match a set of peptides with a Mass Spec

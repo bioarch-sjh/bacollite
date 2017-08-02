@@ -36,8 +36,6 @@ A version of this dataset is available within the package as an R object called 
 It is based on the  sheet
 [https://docs.google.com/spreadsheets/d/1QMIJWZtAZ8zJ4uwbAUpwTp_deBwKeVJ8FoBQopXL_dc/edit?usp=sharing], as at 09:48 on 11 January 2017
 
-##Loading other seqeunce data:
-
 Other sequence sets can be loaded via googleshets: 
 
 ```

@@ -1,9 +1,16 @@
 
 #' Load mass spec data from a 2-column space-delimited text file
 #'
-#' @param species the name of the species whose peptides will be loaded.
+#' @param froot the file path to the directory containing the data, plus the part of the filename that stays the same
+#' @param name the name of the sample
+#' @param spots a vector of spot names - there *must* be three of these
+#' @param fext the file extension. Default is ".txt"
 #' @export
-load.sample <- function(froot,name="Sample",spots){
+#' @examples
+#' froot  <- "~/tmp/bioarch_keri/20160909_Keri13/20160909_Keri13_0_"
+#' spots  <- c("G7","G10","G13")
+#' sample <- "C1"
+load.sample <- function(froot,name="Sample",spots,fext=".txt"){
 
   # TODO: These are example values:
   # froot  <- "~/tmp/bioarch_keri/20160909_Keri13/20160909_Keri13_0_"
@@ -18,9 +25,9 @@ load.sample <- function(froot,name="Sample",spots){
 
 
   #TODO: we need error checking on this!
-  s1 <- read.table(sprintf("%s%s.txt",froot,spots[1]))
-  s2 <- read.table(sprintf("%s%s.txt",froot,spots[2]))
-  s3 <- read.table(sprintf("%s%s.txt",froot,spots[3]))
+  s1 <- read.table(sprintf("%s%s%s",froot,spots[1],fext))
+  s2 <- read.table(sprintf("%s%s%s",froot,spots[2],fext))
+  s3 <- read.table(sprintf("%s%s%s",froot,spots[3],fext))
 
   colnames(s1) <- c("mass","intensity")
   colnames(s2) <- c("mass","intensity")
@@ -106,14 +113,52 @@ get_hydroxylations <- function(sheet,start,end,dopause=T,verbose=F){
 }
 
 
+#' Load sequences from the mammalian collagen sequences googlesheet
+#'
+#' @param species the name of the species whose peptides will be loaded.
+#' @param sheet the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences
+#' @param verbose verbose processing with more detail. Useful for debugging
+#' @param col3 whether to load the sequence from column3, or from the remainder of the spreadsheet. For debugging.
+#' @export
+#' @examples
+#' hcs <- load.sequence()
+#' hcs <- load.sequence("goat")
+load.sequence<-function(spp="human",  sheet=bioarch_mammal_sequences, verbose = F, col3=F){
 
+  spidx<-ts_index(sheet,spp)
+  if(spidx<0){
+    message(sprintf("ERROR: cannot find sequence for %s",spp))
+    return(NA)
+  }
 
+  if(col3){
+    sequence <- sheet[spidx,3]
+  }
+  else{
+    startcol <-4
+
+    message("Reading sequence from mcs data columns")
+
+    endcol<-ncol(sheet)
+
+    seqraw <- as.character(sheet[spidx,startcol:endcol])
+    seqraw <- seqraw[!is.na(seqraw)]
+    sequence <- paste0(seqraw,collapse="")
+  }
+
+  return(sequence)
+
+}
 
 
 
 #' Load peptides from the mammalian collagen sequences googlesheet
 #'
-#' @param species the name of the species whose peptides will be loaded.
+#' @param spp the name of the species whose peptides will be loaded.
+#' @param sheet the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences
+#' @param massmin the minimum mass for a sequence to be returned. Defaults to 800
+#' @param massmax the maximum mass for a sequence to be returned. Defaults to 3500
+#' @param verbose verbose processing with more detail. Useful for debugging
 #' @export
 #' @examples
 #' hcs <- load.mcs()
@@ -126,13 +171,20 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
     return(NA)
   }
 
-  message(sprintf("Calculating sequences for %s now",spp))
+  if(verbose){
+    message(sprintf("Calculating sequences for %s now",spp))
+  }
+
   endcol<-ncol(sheet)
-  start<-4
+  shoff<-4 #sheet-based offset (column that the sequence starts in)
+
+  start<-shoff
   count<-1
 
-  sdata <- data.frame(seq=as.character(),nhyd=as.integer(),nglut=as.integer(),mass1=as.numeric(),prob=as.numeric())
+  sdata <- data.frame(seq=as.character(),nhyd=as.integer(),nglut=as.integer(),mass1=as.numeric(),prob=as.numeric(),seqpos=as.integer())
 
+
+  runtoend <- F
 
   for(j in start:endcol){
 
@@ -145,7 +197,11 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
       }
       end=j
 
-      sequence <- paste0(sheet[spidx,start:end],collapse="")
+
+      #TODO: <NA> is coerced into "NA" - not what we want! - trying this:
+      seqraw <- as.character(sheet[spidx,start:end])
+      seqraw <- seqraw[!is.na(seqraw)]
+      sequence <- paste0(seqraw,collapse="")
 
 
       masses <- ms_tpeaks(sequence)
@@ -175,7 +231,7 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
             print(pnh)
           }
         }
-        else{
+        else{#No "P" in the sequence
           if(verbose){
             message("No hydroxylation probabilities for this sequence")
             #TODO: later on - check if there any P's with no probs available
@@ -205,6 +261,7 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
                           ,nglut=d
                           ,mass1 = masses$mass[1] + (d*0.984015)+(pnh$nhyd[h]*16)
                           ,prob =  pnh$prob[h]
+                          ,seqpos = start - shoff + 1
                         )
               sdata <- rbind(sdata,newrow)
 
@@ -213,9 +270,13 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
                 print(newrow)
                 message(sprintf("Sdata now has %d rows and looks like:",nrow(sdata)))
                 print(sdata[nrow(sdata),])
-                answer<-readline("is hyd working?")
-                if (substr(answer, 1, 1) == "n")
-                  return (sdata)
+                if(!runtoend){
+                  answer<-readline("is hyd working? (y/n/r = yes/no/run to end)")
+                  if (substr(answer, 1, 1) == "n")
+                    return (sdata)
+                  if (substr(answer, 1, 1) == "r")
+                    runtoend = T
+                }
               }
             }
           }
@@ -228,6 +289,7 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
               ,nglut=d
               ,mass1 = masses$mass[1] + (d*0.984015)+(nhyd*16)
               ,prob =  1 #TODO: check this is always the case!
+              ,seqpos = start - shoff + 1
             )
             sdata <- rbind(sdata,newrow)
 
@@ -249,7 +311,6 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
       }
       #readline("hit <return> to continue...\n")
       start = j+1
-
     }
     else{
 

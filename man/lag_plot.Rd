@@ -4,8 +4,8 @@
 \alias{lag_plot}
 \title{Plot the lag correction and fit a line to it for a peptide sample}
 \usage{
-lag_plot(markers, hits, no = 1, ylim = c(-1, 1), mypoly = 2,
-  title = "Lag Plot")
+lag_plot(markers, hits, no = 1, ylim = c(-1.4, 1), mypoly = 2,
+  title = "Lag Plot", corlim = 0.1, laglim = 0.5)
 }
 \arguments{
 \item{fn}{full path of the raw gpm text fi}
