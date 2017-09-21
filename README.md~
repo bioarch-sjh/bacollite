@@ -36,6 +36,8 @@ A version of this dataset is available within the package as an R object called 
 It is based on the  sheet
 [https://docs.google.com/spreadsheets/d/1QMIJWZtAZ8zJ4uwbAUpwTp_deBwKeVJ8FoBQopXL_dc/edit?usp=sharing], as at 09:48 on 11 January 2017
 
+##Loading other seqeunce data:
+
 Other sequence sets can be loaded via googleshets: 
 
 ```
@@ -43,6 +45,12 @@ require(googlesheets)
 mc_meta <-gs_title("Mammalian Collagen Sequences v0.0.2")
 sequences <- gs_read(mc_meta)
 ```
+Alternatively, the google sheet can be exported as a .csv file to your computer, and then loaded like so: 
+
+```
+
+```
+
 
 See [https://docs.google.com/spreadsheets/d/1QMIJWZtAZ8zJ4uwbAUpwTp_deBwKeVJ8FoBQopXL_dc/edit#gid=269004764] for the required format of these sheets
 

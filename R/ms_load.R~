@@ -155,7 +155,7 @@ load.sequence<-function(spp="human",  sheet=bioarch_mammal_sequences, verbose = 
 #' Load peptides from the mammalian collagen sequences googlesheet
 #'
 #' @param spp the name of the species whose peptides will be loaded.
-#' @param sheet the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences, which is the latest version of the Bioarch mammal sequence dataset
+#' @param sheet the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences
 #' @param massmin the minimum mass for a sequence to be returned. Defaults to 800
 #' @param massmax the maximum mass for a sequence to be returned. Defaults to 3500
 #' @param verbose verbose processing with more detail. Useful for debugging

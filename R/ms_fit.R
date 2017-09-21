@@ -9,6 +9,7 @@
 #' @param vlevel verbose level. 0 means no comments, 3 means full comments
 #' @param corlim threshold for correlation scores
 #' @param laglim threshold for lag scores
+#' @param ignore_warnings whether to ignore the check for the input and calculated mass
 #' @return a dataframe holding the following fields:
 #'   \item{hit}{Whether a match was found for this peptide}
 #'   \item{lag1}{The lag for sample 1}
@@ -21,7 +22,7 @@
 #'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
 #'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6){
+ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6,ignore_warnings=F){
 
   #initialise:
   plotno <- 0
@@ -51,12 +52,22 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
 
     cd1$mass <- cd1$mass + (peptides$nglut[i]*0.984015)+(peptides$nhyd[i]*16)
 
+    warn_mass_error<-F
+
     #TEST
     if(abs(cd1$mass[1]-peptides$mass1[i]) > 0.05){
-      readline(sprintf("ERROR: Peptide %d mass calculation problem:\ncd1$mass[1]=%f\npeptides$mass1 = %f\nnhyd = %d, nglut = %d, seq = %s",
-                       i,cd1$mass[1],peptides$mass1[i],
-                       peptides$nhyd[i],peptides$nglut[i],peptides$seq[i]))
-      return (NA)
+      if(!ignore_warnings){
+        readline(sprintf("ERROR: Peptide %d mass calculation problem:\ncd1$mass[1]=%f\npeptides$mass1 = %f\nnhyd = %d, nglut = %d, seq = %s",
+                         i,cd1$mass[1],peptides$mass1[i],
+                         peptides$nhyd[i],peptides$nglut[i],peptides$seq[i]))
+        return (NA)
+      }
+      else{
+        message(sprintf("ERROR: Peptide %d mass calculation problem:\ncd1$mass[1]=%f\npeptides$mass1 = %f\nnhyd = %d, nglut = %d, seq = %s",
+                         i,cd1$mass[1],peptides$mass1[i],
+                         peptides$nhyd[i],peptides$nglut[i],peptides$seq[i]))
+
+      }
     }
 
 
@@ -157,6 +168,11 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
               peptides$seq[i],peptides$nglut[i],peptides$nhyd[i],
               align1$lag,align2$lag,align3$lag,
               align1$cor,align2$cor,align3$cor)
+
+
+            if(warn_mass_error){
+              mymain <- sprintf("%s%s","(MASS ERROR) ",mymain)
+            }
 
             myxxlim <- c(lbl-1,ubl+1)
             plot(1, type="n", xlab="Mass", ylab = "Probability",

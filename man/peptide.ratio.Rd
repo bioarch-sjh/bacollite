@@ -4,7 +4,7 @@
 \alias{peptide.ratio}
 \title{Get the ratio of ion counts for two peptides}
 \usage{
-peptide.ratio(sample, peptide1, peptide2)
+peptide.ratio(sample, peptide1, peptide2, doplot = F)
 }
 \arguments{
 \item{sample}{the MALDI spectrum - three replictes, as loaded by load.sample()}
@@ -12,6 +12,8 @@ peptide.ratio(sample, peptide1, peptide2)
 \item{peptide1}{the first peptide, which forms the numerator of the ratio calculation}
 
 \item{peptide2}{the second peptide, which forms the denominator of the ratio calculation}
+
+\item{doplot}{whether or not a plot of the fit should be created (default is FALSE)}
 }
 \description{
 Get the ratio of ion counts for two peptides
@@ -21,4 +23,3 @@ sample <- load.sample("~/samples","01",c("_1","_2","_3"))
 peptides <- load.mcs()
 ratios <- peptide.ratio(sample, peptides[1,], peptides[2,])
 }
-

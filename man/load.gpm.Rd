@@ -17,4 +17,3 @@ Load a set of peptides from the Global Protein Machine
 \examples{
 gpm<-load.gpm()
 }
-

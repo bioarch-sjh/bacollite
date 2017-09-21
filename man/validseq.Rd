@@ -17,4 +17,3 @@ a logical value: T if valid, F if not
 \description{
 This checks if the letters in a sequence are all valid amino acid codes
 }
-

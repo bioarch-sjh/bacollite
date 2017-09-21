@@ -23,4 +23,3 @@ Load sequences from the mammalian collagen sequences googlesheet
 hcs <- load.sequence()
 hcs <- load.sequence("goat")
 }
-

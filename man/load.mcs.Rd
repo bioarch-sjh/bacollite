@@ -10,7 +10,7 @@ load.mcs(spp = "human", sheet = bioarch_mammal_sequences, massmin = 800,
 \arguments{
 \item{spp}{the name of the species whose peptides will be loaded.}
 
-\item{sheet}{the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences}
+\item{sheet}{the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences, which is the latest version of the Bioarch mammal sequence dataset}
 
 \item{massmin}{the minimum mass for a sequence to be returned. Defaults to 800}
 
@@ -25,4 +25,3 @@ Load peptides from the mammalian collagen sequences googlesheet
 hcs <- load.mcs()
 hcs <- load.mcs("goat")
 }
-

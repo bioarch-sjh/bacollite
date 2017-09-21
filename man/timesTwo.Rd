@@ -12,4 +12,3 @@ timesTwo(x)
 \description{
 Multiply a number by two
 }
-

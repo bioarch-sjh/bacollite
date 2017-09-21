@@ -16,4 +16,3 @@ Wrapper for the 'R_iso_seq' q2e c function, to get theoretical peaks from a sequ
 ms_tpeaks("IGQPGAVGPAGIR")
 }
 \keyword{test}
-

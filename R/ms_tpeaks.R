@@ -50,7 +50,7 @@ ms_tpeaks <- function(sequence,verbose=F,ndeamidations=0,nhydroxylations=0){
 
   }
   else{
-    message("ms_tpeaks: Input string must contain only (peptides$nglut[i]*0.984015)+(peptides$nhyd[i]*16)uppercase alphabeticial characters")
+    message(sprintf("ms_tpeaks: error processing string %s\n Input string must contain only uppercase alphabeticial characters",sequence))
     return(NA)
   }
 }

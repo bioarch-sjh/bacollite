@@ -12,4 +12,3 @@ load.gpm.raw(fn = NA, colno = NA)
 \description{
 Load a set of peptides from the Global Protein Machine
 }
-

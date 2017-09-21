@@ -5,15 +5,16 @@
 #' @param sample the MALDI spectrum - three replictes, as loaded by load.sample()
 #' @param peptide1 the first peptide, which forms the numerator of the ratio calculation
 #' @param peptide2 the second peptide, which forms the denominator of the ratio calculation
+#' @param doplot whether or not a plot of the fit should be created (default is FALSE)
 #' @export
 #' @examples
 #' sample <- load.sample("~/samples","01",c("_1","_2","_3"))
 #' peptides <- load.mcs()
 #' ratios <- peptide.ratio(sample, peptides[1,], peptides[2,])
-peptide.ratio <- function(sample, peptide1, peptide2){
+peptide.ratio <- function(sample, peptide1, peptide2, doplot = F){
 
-  fita <- ms_fit(peptide1,sample,doplot=F,force = T)
-  fitb <- ms_fit(peptide2,sample,doplot=F,force = T)
+  fita <- ms_fit(peptide1,sample,doplot=doplot,force = T)
+  fitb <- ms_fit(peptide2,sample,doplot=doplot,force = T)
 
   r1 <- fita$ion1 / fitb$ion1
   r2 <- fita$ion2 / fitb$ion2

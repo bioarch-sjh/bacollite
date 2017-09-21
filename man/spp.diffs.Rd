@@ -33,4 +33,3 @@ sh <- load.mcs("sheep")
 hu <- load.mcs()
 diffs <- spp.diffs(sh,hu,"sheep","human")
 }
-

@@ -23,4 +23,3 @@ froot  <- "~/tmp/bioarch_keri/20160909_Keri13/20160909_Keri13_0_"
 spots  <- c("G7","G10","G13")
 sample <- "C1"
 }
-

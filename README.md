@@ -45,6 +45,13 @@ require(googlesheets)
 mc_meta <-gs_title("Mammalian Collagen Sequences v0.0.2")
 sequences <- gs_read(mc_meta)
 ```
+Alternatively, the google sheet can be exported as a .csv file to your computer, and then loaded like so: 
+
+```
+ bms0.1.2 <- read.table(file="Mammalian Collagen Sequences v0.1.2 - Mammal.csv",sep=",")
+
+```
+
 
 See [https://docs.google.com/spreadsheets/d/1QMIJWZtAZ8zJ4uwbAUpwTp_deBwKeVJ8FoBQopXL_dc/edit#gid=269004764] for the required format of these sheets
 

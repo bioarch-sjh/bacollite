@@ -15,4 +15,3 @@ Load a set of peptide markers for human
 \examples{
 hm<-load.human.markers()
 }
-

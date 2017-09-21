@@ -15,4 +15,3 @@ Get the species index in the mammalian_collagen_sequences sheet
 \examples{
 hcd <- ts_index(sheet,"human")
 }
-
