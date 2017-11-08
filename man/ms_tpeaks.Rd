@@ -2,7 +2,8 @@
 % Please edit documentation in R/ms_tpeaks.R
 \name{ms_tpeaks}
 \alias{ms_tpeaks}
-\title{Wrapper for the 'R_iso_seq' q2e c function, to get theoretical peaks from a sequence}
+\title{Wrapper for the 'R_iso_seq' q2e c function, to get theoretical peaks from a sequence
+WARNING: This function is obsolete - use ms_fit instead with the same arguments}
 \usage{
 ms_tpeaks(sequence, verbose = F, ndeamidations = 0, nhydroxylations = 0)
 }
@@ -11,6 +12,7 @@ ms_tpeaks(sequence, verbose = F, ndeamidations = 0, nhydroxylations = 0)
 }
 \description{
 Wrapper for the 'R_iso_seq' q2e c function, to get theoretical peaks from a sequence
+WARNING: This function is obsolete - use ms_fit instead with the same arguments
 }
 \examples{
 ms_tpeaks("IGQPGAVGPAGIR")

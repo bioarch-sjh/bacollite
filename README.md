@@ -1,6 +1,3 @@
----
-output: html_document
----
 
 
 
@@ -8,7 +5,7 @@ output: html_document
 
 #Getting help
 
-##Functions
+Sometimes getting help in R is onfusing. Here's some things you can try:
 
 ```
 bacollite::    # lists availble functions in a pop-out in rstudio

@@ -22,10 +22,24 @@ load.gpm.raw <- function(fn=NA,colno=NA){
   for(i in 1:nrow(gpm2)){
 
     #get the mass data...
+    #cd1 <- ms_tpeaks(gpm2$seq[i])
+    #gpm2$mass1[i] = cd1$mass[1] +  (gpm2$nglut[i]*0.984015)+(gpm2$nhyd[i]*16)
 
-    cd1 <- ms_tpeaks(gpm2$seq[i])
-    gpm2$mass1[i] = cd1$mass[1] +  (gpm2$nglut[i]*0.984015)+(gpm2$nhyd[i]*16)
-    gpm2$prob[i] = cd1$prob[1]
+    cd1<- ms_iso(gpm2$seq[i],ndeamidations=gpm2$nglut[i],nhydroxylations = gpm2$nhyd[i])
+
+    #TODO: Need a better way to catch bad ndeamidations and nhydroxylations...
+    #TODO: The whole prob field needs rethinking for load.gpm()
+    if(is.data.frame(cd1)){
+      gpm2$prob[i] = cd1$prob[1]
+      gpm2$mass1[i] = cd1$mass[1]
+    }
+    else{
+      gpm2$prob[i] = 0
+      gpm2$mass1[i] = 0
+    }
+
+
+
   }
 
   #remove outliers

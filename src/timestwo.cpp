@@ -97,36 +97,5 @@ DataFrame helloDfram(CharacterVector cvname){
 }*/
 
 
-#include "riso.h"
-
-
-// [[Rcpp::export]]
-DataFrame cppIso(CharacterVector cvseq){
-
-	std::string cppseq = Rcpp::as<std::string>(cvseq);
-
-	double	resultmass[NUMISOTOPES];
-	double  resultprob[NUMISOTOPES];
-	int failed;
-
-
-	//void R_iso_seq(char * pseq,  double *resultmass, double *resultprob, int *failed){
-	R_iso_seq(cppseq.c_str(),&(resultmass[0]), &resultprob[0], &failed);
-
-  	NumericVector mass = NumericVector::create();
-  	NumericVector prob = NumericVector::create();
-
-  	mass.assign(resultmass,resultmass+NUMISOTOPES);
-  	prob.assign(resultprob,resultprob+NUMISOTOPES);
-
-	return Rcpp::DataFrame::create( Named("mass")= mass, Named("prob") = prob);
-}
-
-
-
-/*** R
-x<-cppIso("GPPGPPGPPGPP")
-pri
-*/
 
 

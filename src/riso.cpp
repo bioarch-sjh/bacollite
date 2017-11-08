@@ -28,16 +28,6 @@
 #include <string.h>
 #include <math.h>
 
-//#include <Rcpp.h>
-//using namespace Rcpp;
-
-/* DELETED THESSE FILES TO MAKE LINKING EASIER!!
-#include "constants.h"
-#include "getline.h"
-#include "isodists.h"
-#include "r_iso.h"
-*/
-
 //Use this to get printouts when needed (may have overdone it with the printfs!)
 //#define DEBUG_R
 
@@ -47,7 +37,6 @@
 
 /********************************************************************************/
 /* STRUCTURES - FROM 'constants.h' */
-
 
 typedef struct SAMPLEPEP/*pep*/{
   int found;
@@ -92,7 +81,7 @@ typedef struct mass {
 
 /* FORWARD FUNCTION DECLARATIONS */
 // from 'isodists.h'
-double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *dist);
+double getIsoDist(int ii, ISOTAB *element, int num, int *peptide, ISODIST *dist);
 float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check);
 void R_loadIsotopeTable(/*char *filename,*/ ISOTAB *element, const int num, const int numiso);
 // from 'getline.h'
@@ -103,6 +92,13 @@ PEPTIDE * allocPepArray(const int numpep);
 void freePepArray(PEPTIDE *pep, const int numpep);
 
 ISODIST * allocDistArray(const int numpep);
+void freeDistArray(ISODIST  *dist, const int numpep);
+
+AMINO * allocAmino();
+void freeAmino(AMINO * amino);
+
+ISOTAB * allocIsotab();
+void freeIsotab(ISOTAB *);
 
 void pepFromSequence(PEPTIDE *pep,const char *sequence);
 
@@ -115,20 +111,11 @@ This will only work on one peptide at a time, and should be called repeatedly
 if you want to get the peak distributions of >1 sequence.
 
 *********************************************************************************/
-//TODO: Once I've figured out how to get data in and out, uncomment these:
-////' Get isomeric distributions from an amino acid sequence
-////'
-////' @param seq a sequence of amino acids
-////' @param resultmass a vector of five mass values
-////' @param resultprob a vector of five probabilities
-////' @param failed an integer indicating any fail modes
-////' @export
-//// [[Rcpp::export]]
-void R_iso_seq(const char * pseq,  double *resultmass, double *resultprob, int *failed){
-
-  /*
-DataFrame R_iso_seq(String rseq){//}, NumericVector xmass, NumericVector xprob, int failed){
-
+/****
+ *
+ * NOTE!! This is *NOT* called directly from R! see 'cppIso' in timestwo.cpp
+ *
+ *
 
   //////////////////////////////////////////////////////
   //The original function call looked like this:
@@ -146,7 +133,8 @@ DataFrame R_iso_seq(String rseq){//}, NumericVector xmass, NumericVector xprob, 
   resultprob = (double *) malloc(NUMELEMENTS * sizeof(double));//xprob.begin();
 
   ///////////////////////////////////////////////////////
-*/
+ */
+void R_iso_seq(const char * pseq, double *resultmass, double *resultprob, int *failed){
 
   const int numpep = 1;
   const int numiso = 5;
@@ -154,18 +142,16 @@ DataFrame R_iso_seq(String rseq){//}, NumericVector xmass, NumericVector xprob, 
   int k,m;
 
 #ifdef DEBUG_R
-  printf("Inside R_iso_seq, sequence is %s, length is %d\n",pseq,strlen(pseq));
+  printf("Inside R_iso_seq, sequence is %s, length is %d\n",pseq,(int) strlen(pseq));
 #endif
 
   /* allocate and initialise the PEPTIDE array */
   PEPTIDE *pep = NULL;
   pep = allocPepArray(numpep);
 
-
   /* allocate and initialise the ISODIST array */
   ISODIST  *dist = NULL;
   dist = allocDistArray(numpep);
-
 
   /* Now calculate the masses and probs */
   for (k = 0; k < numpep; k++)
@@ -211,14 +197,9 @@ DataFrame R_iso_seq(String rseq){//}, NumericVector xmass, NumericVector xprob, 
       resultprob[m] = dist[k].prob[m];
     }
 
-    for (k = 0; k < numpep; k++)
-    {
-      free (dist[k].mass);
-      free (dist[k].prob);
-    }
-    free (dist);
   }
 
+  freeDistArray(dist,numpep);
   freePepArray(pep,numpep);
 
 }
@@ -277,27 +258,80 @@ ISODIST * allocDistArray(const int numpep){
   ISODIST *dist = NULL;
   dist = (ISODIST*) malloc (numpep * sizeof(ISODIST));
   for (k = 0; k < numpep; k++){
-    dist[k].mass = (double*) malloc (5 * sizeof(double));
-    dist[k].prob = (double*) malloc (5 * sizeof(double));
+    dist[k].mass = (double*) malloc (NUMISOTOPES * sizeof(double));
+    dist[k].prob = (double*) malloc (NUMISOTOPES * sizeof(double));
   }
 
   return dist;
 }
 
-/* Get peptide from sequence */
+void freeDistArray(ISODIST  *dist, const int numpep){
+    for (int k = 0; k < numpep; k++)
+    {
+      free (dist[k].mass);
+      free (dist[k].prob);
+    }
+    free (dist);
+}
+
+
+AMINO * allocAmino(){
+	AMINO *letter;
+	letter = (AMINO*) malloc (NUMLETTERS *  sizeof(AMINO));
+	for (int i = 0; i < NUMLETTERS; i++){
+	  letter[i].element = (int*) malloc (NUMELEMENTS * sizeof(int));
+	}
+	return letter;
+}
+
+void freeAmino(AMINO * amino){
+	for (int i = 0; i < NUMLETTERS; i++){
+	  free(amino[i].element);
+	}
+	free(amino);
+}
+
+
+ISOTAB * allocIsotab(){
+	ISOTAB  *element = NULL;
+	element = (ISOTAB*) malloc (NUMELEMENTS *  sizeof(ISOTAB));
+	for (int i = 0; i < NUMELEMENTS; i++)
+	{
+		element[i].isotope = (double*) malloc (NUMISOTOPES * sizeof(double));
+		element[i].abundance = (double*) malloc (NUMISOTOPES * sizeof(double));
+	}
+	return element;
+}
+
+void freeIsotab(ISOTAB * element){
+	for (int i = 0; i < NUMELEMENTS; i++)
+	{
+		free(element[i].isotope);
+		free(element[i].abundance);
+	}
+	free(element);
+
+}
+
+
+
+
+
+/* Get peptide from sequence, converting amino acid codes to integer
+ * vaules and counting the "Z" entries */
 void pepFromSequence(PEPTIDE *pep,const char *sequence){
 
-int i=0;
-pep->zs=0;
+	int i=0;
+	pep->zs=0;
 
-while(sequence[i]){
-pep->numseq[i] = sequence[i]-65;
-if(pep->numseq[i]==25){
-pep->zs++;
-}
-i++;
-}
-pep->length=strlen(sequence);
+	while(sequence[i]){
+		pep->numseq[i] = sequence[i]-65;
+		if(pep->numseq[i]==25){
+			pep->zs++;
+		}
+		i++;
+	}
+	pep->length=strlen(sequence);
 }
 
 
@@ -346,16 +380,7 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
 #endif
 
 
-  /* THIS STRUCTURE SHOULD BE ITENTICAL TO THE FILE "aminomasses" */
-  //const int AMINODATA[numletters][numelements] = {
-
-  const int TAMINODATA[3][2] = {{0,1},{2,3},{4,5}};
-
-#ifdef DEBUG_R
-  int x = TAMINODATA[0][0];
-  printf("x = %d\n",x);
-#endif
-
+  /* THIS STRUCTURE SHOULD BE IDENTICAL TO THE FILE "aminomasses" */
   const int AMINODATA[NUMLETTERS][NUMELEMENTS] = {
     //  ELEMENT:
     //  C   H   N   O   S   //Amino Acid
@@ -389,30 +414,26 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
 
 
   /* number of different isotopes in isotope table */
-  int numiso = 5;//TODO: This should use the constant NUMISOTOPES
+  //int numiso = 5;//TODO: This should use the constant NUMISOTOPES
 
   double imass = 0.;
 
   int i, j, k;
 
-  double *peptide = NULL;
-  peptide = (double*) malloc (NUMELEMENTS *  sizeof(double));
+  //TODO: Why are we mallocing this?
+  int *peptide = NULL;
+  peptide = (int *) malloc (NUMELEMENTS *  sizeof(int));
 
   ISOTAB  *element = NULL;
-  element = (ISOTAB*) malloc (NUMELEMENTS *  sizeof(ISOTAB));
-  for (i = 0; i < NUMELEMENTS; i++)
-  {
-    element[i].isotope = (double*) malloc (numiso * sizeof(double));
-    element[i].abundance = (double*) malloc (numiso * sizeof(double));
-  }
+  element = allocIsotab();
 
-  AMINO  *letter = NULL;
-  letter = (AMINO*) malloc (NUMLETTERS *  sizeof(AMINO));
-  for (i = 0; i < NUMLETTERS; i++){
-    letter[i].element = (int*) malloc (NUMELEMENTS * sizeof(int));
-  }
+  R_loadIsotopeTable(/*ISO_TABLE,*/ element, NUMELEMENTS, NUMISOTOPES);
 
-  //TODO: Although we've replaced the file aminomasses with the AMINODATA array, we need a better way to load other amino masses if we need to.
+
+  AMINO  *letter;
+  letter = allocAmino();
+
+  //TODO: Although we've replaced the file aminomasses with the AMINODATA array, we need a better way to load other masses if we need to.
   /* read in elements for each amino acid */
   //fp = fopen(AMINO_FILE, "r");
   for (i = 0; i < NUMLETTERS; i++)
@@ -426,12 +447,8 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
   }
   //fclose(fp);
 
-  R_loadIsotopeTable(/*ISO_TABLE,*/ element, NUMELEMENTS, numiso);
 #ifdef DEBUG_R
   printf("success reading iso table\n");
-#endif
-
-#ifdef DEBUG_R
   //Print the table for debugging
 #endif
 
@@ -442,13 +459,14 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
     if (pep[i].found == 1)
     {
 
+      //Convert amino acid masses to atomic masses for the five elements
       for (k = 0; k < NUMELEMENTS; k++)
       {
 
 #ifdef DEBUG_R
         printf("loading peptide element %d\n",k);fflush(stdout);
 #endif
-        peptide[k] = 0.0;
+        peptide[k] = 0;//0.0;
         for (j = 0; j < pep[i].length; j++)
         {
 
@@ -456,13 +474,38 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
           printf("loading peptide letter %d (=%c)\n",j,  pep[i].numseq[j]+65);fflush(stdout);
 #endif
 
-          peptide[k] = peptide[k] + (float)letter[ pep[i].numseq[j] ].element[k];
+          peptide[k] = peptide[k] + letter[ pep[i].numseq[j] ].element[k];
         }
       }
+
+#ifdef DEBUG_R
+      printf("Peptide count:\nC\tH\tN\tO\tS\n");
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%0.1f\t",(float) peptide[k]);
+      }
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%d\t",peptide[k]);
+      }
+      printf("\n");
+#endif
+
 
       /* remove 2H10 for each link between amino acids */
       peptide[1] = peptide[1] - 2.0*(float)(pep[i].length - pep[i].zs - 1);
       peptide[3] = peptide[3] - (float)(pep[i].length - pep[i].zs - 1);
+
+#ifdef DEBUG_R
+      printf("removing 2xH and 1xO link gives\n");
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%0.1f\t",(float) peptide[k]);
+      }
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%d\t",peptide[k]);
+      }
+      printf("\n");
+#endif
+
+
 
 
 #ifdef DEBUG_R
@@ -479,18 +522,8 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
     }
   }
 
-  for (i = 0; i < NUMELEMENTS; i++)
-  {
-    free(element[i].isotope);
-    free(element[i].abundance);
-  }
-  free(element);
-
-  for (i = 0; i < NUMLETTERS; i++){
-    free(letter[i].element);
-  }
-  free(letter);
-
+  freeIsotab(element);
+  freeAmino(letter);
   free(peptide);
 
   return imass;
@@ -679,15 +712,29 @@ float bico(int n, int k)
  Procedure: getIsoDist
 
 ************************************************************************************************************/
-double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *dist)
+double getIsoDist(int ii, ISOTAB *element, int num, int *peptide, ISODIST *dist)
 {
   double mult, power, probj, probk, probl, probm;
   double probjk, probkl, probjkl, probklm, probjklm;
   int i, j, k, l, m;
 
+
+
+#ifdef DEBUG_R
+      printf("inside getIsoDist..\n");fflush(stdout);
+      printf("configuring dist..\n");fflush(stdout);
+#endif
+
+
   /* get monoisotopic mass and it's probabilty */
   dist[ii].mass[0] = 0.0;
   dist[ii].prob[0] = 100.0;
+
+
+#ifdef DEBUG_R
+      printf("referncing element..\n");fflush(stdout);
+#endif
+
 
   for (i = 0; i < num; i++)
   {
@@ -695,6 +742,11 @@ double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *di
     dist[ii].mass[0] = dist[ii].mass[0] + peptide[i]*element[i].isotope[0];
     dist[ii].prob[0] = dist[ii].prob[0] * pow(element[i].abundance[0], power);
   }
+
+
+#ifdef DEBUG_R
+      printf("finished configuring dist..\n");fflush(stdout);
+#endif
 
   /* get probabilty of monoisotopic mass plus 1 */
   dist[ii].prob[1] = 0.0;
@@ -714,6 +766,8 @@ double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *di
     dist[ii].prob[1] =   dist[ii].prob[1] + probj;
   }
   dist[ii].prob[1] =  dist[ii].prob[1]*100.0;
+
+
 
   /* get probabilty of monoisotopic mass plus 2 */
   dist[ii].prob[2] = 0.0;
@@ -774,6 +828,8 @@ double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *di
     }
   }
   dist[ii].prob[2] =  dist[ii].prob[2]*100.0;
+
+
 
   /* get probabilty of monoisotopic mass plus 3 */
   dist[ii].prob[3] = 0.0;
@@ -912,6 +968,8 @@ double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *di
     }
   }
   dist[ii].prob[3] =  dist[ii].prob[3]*100.0;
+
+
 
   /* get probabilty of monoisotopic mass plus 4 */
   dist[ii].prob[4] = 0.0;
@@ -1256,6 +1314,8 @@ double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *di
   }
   dist[ii].prob[4] =  dist[ii].prob[4]*100.0;
 
+
+  /*Normalise the result*/
   double max = 0.0;
   for (i = 0; i < 5; i++)
   {
@@ -1267,6 +1327,223 @@ double getIsoDist(int ii, ISOTAB *element, int num, double *peptide, ISODIST *di
   }
 
   return(dist[ii].mass[0]);
+}
+
+
+
+void R_iso_atom(int nC, int nH, int  nN, int  nO, int  nS, double *resultmass, double *resultprob, int *failed, int check){
+
+	int * peptides;
+	peptides = (int *)malloc(NUMELEMENTS * sizeof(int));
+
+	peptides[0] = nC;
+	peptides[1] = nH;
+	peptides[2] = nN;
+	peptides[3] = nO;
+	peptides[4] = nS;
+
+
+
+	R_iso_atom_p(peptides, resultmass, resultprob, failed);
+
+	free(peptides);
+
+}
+
+
+
+
+void R_iso_atom_p(int * atomcount, double *resultmass, double *resultprob, int *failed, int check){
+
+#ifdef DEBUG_R
+	printf("Inside R_iso_atom\n");
+#endif
+
+	//Load the isotope table
+	ISOTAB  *element = NULL;
+	element=allocIsotab();
+
+	R_loadIsotopeTable(/*ISO_TABLE,*/ element, NUMELEMENTS, NUMISOTOPES);
+
+	const int NUMPEP = 1;
+	/* allocate and initialise the ISODIST array */
+	ISODIST  *dist = NULL;
+	dist = allocDistArray(NUMPEP);
+
+#ifdef DEBUG_R
+      printf("getting iso dist..\n");fflush(stdout);
+#endif
+
+      double imass = getIsoDist(0, element, NUMELEMENTS, atomcount, dist);
+
+#ifdef DEBUG_R
+      printf("calculated mass %f\n", imass);
+#endif
+	if(check){
+		//if (fabs(imass-pep[i].pepmass) > 1.5) {
+		//	printf("ERROR: SOMETHING IS WRONG HERE, THE DIFERENCE BETWEEN THE GIVEN AND CALCULATED MASSES IS %d\n", (int)(fabs(imass-pep[i].pepmass)+0.5));
+		//}
+		printf("Unable to check mass - this can be done using R_iso_seq() if your molecule is a peptide\n");
+	}
+
+	//Add one for the charge
+	imass = imass + 1;
+
+
+#ifdef DEBUG_R
+    printf("theoretical isotope distribution (including charge):\n");
+    printf("%0.2f: %0.9f \n", imass + 0.0, dist[0].prob[0]);
+    printf("%0.2f: %0.9f \n", imass + 1.0, dist[0].prob[1]);
+    printf("%0.2f: %0.9f \n", imass + 2.0, dist[0].prob[2]);
+    printf("%0.2f: %0.9f \n", imass + 3.0, dist[0].prob[3]);
+    printf("%0.2f: %0.9f \n", imass + 4.0, dist[0].prob[4]);
+
+    printf("Populating R structures\n");
+#endif
+
+
+    for(int m=0;m<NUMISOTOPES;m++){
+#ifdef DEBUG_R
+      printf("Isotope %d: mass is %f, prob is %f\n",m,imass+m,dist[0].prob[m]);
+#endif
+
+      resultmass[m] = imass + (1.0 * m);
+      resultprob[m] = dist[0].prob[m];
+    }
+
+
+  freeIsotab(element);
+  freeDistArray(dist,NUMPEP);
+
+}
+
+/*This is the first bit of r_iso_seq */
+void atomcount_from_peptide(const char * pseq, int * numatoms){
+
+	const int NUMPEP = 1;
+	  /* allocate and initialise the PEPTIDE array */
+	PEPTIDE *pep = NULL;
+	pep = allocPepArray(NUMPEP);
+
+
+
+	pepFromSequence( &(pep[0]), pseq);
+
+
+#ifdef DEBUG_R
+  printf("Loading amino table\n");fflush(stdout);
+#endif
+
+
+  /* THIS STRUCTURE SHOULD BE IDENTICAL TO THE FILE "aminomasses" */
+  const int AMINODATA[NUMLETTERS][NUMELEMENTS] = {
+    //  ELEMENT:
+    //  C   H   N   O   S   //Amino Acid
+    { 3,  7,  1,  2,  0}, //A
+    { 0, -1,  0, -1,  0}, //B
+    { 3,  7,  1,  2,  1}, //C
+    { 4,  7,  1,  4,  0}, //D
+    { 5,  9,  1,  4,  0}, //E
+    { 9, 11,  1,  2,  0}, //F
+    { 2,  5,  1,  2,  0}, //G
+    { 6,  9,  3,  2,  0}, //H
+    { 6, 13,  1,  2,  0}, //I
+    { 0,  0,  0,  0,  0}, //J
+    { 6, 14,  2,  2,  0}, //K
+    { 6, 13,  1,  2,  0}, //L
+    { 5, 11,  1,  2,  1}, //M
+    { 4,  8,  2,  3,  0}, //N
+    { 0,  0,  0,  0,  0}, //O
+    { 5,  9,  1,  2,  0}, //P
+    { 5, 10,  2,  3,  0}, //Q
+    { 6, 14,  4,  2,  0}, //R
+    { 3,  7,  1,  3,  0}, //S
+    { 4,  9,  1,  3,  0}, //T
+    { 0,  0,  0,  0,  0}, //U
+    { 5, 11,  1,  2,  0}, //V
+    {11, 12,  2,  2,  0}, //W
+    { 2,  2,  0,  2,  0}, //X
+    { 9, 11,  1,  3,  0}, //Y
+    { 0,  0,  0,  1,  0}  //Z
+  };
+
+
+  int i, j, k;
+
+  AMINO  *letter;
+  letter = allocAmino();
+
+  //TODO: Although we've replaced the file aminomasses with the AMINODATA array, we need a better way to load other masses if we need to.
+  /* read in elements for each amino acid */
+  //fp = fopen(AMINO_FILE, "r");
+  for (i = 0; i < NUMLETTERS; i++)
+  {
+    for (k = 0; k < NUMELEMENTS; k++)
+    {
+      //tmp = fscanf(fp,"%d ", &dtmp);
+      //letter[i].element[k] = dtmp;
+      letter[i].element[k] = AMINODATA[i][k];
+    }
+  }
+  //fclose(fp);
+
+#ifdef DEBUG_R
+  printf("success reading iso table\n");
+  //Print the table for debugging
+#endif
+
+
+ i=0;
+
+      //Convert amino acid masses to atomic masses for the five elements
+      for (k = 0; k < NUMELEMENTS; k++)
+      {
+
+#ifdef DEBUG_R
+        printf("loading numatoms element %d\n",k);fflush(stdout);
+#endif
+        numatoms[k] = 0;//0.0;
+        for (j = 0; j < pep[i].length; j++)
+        {
+
+#ifdef DEBUG_R
+          printf("loading peptide letter %d (=%c)\n",j,  pep[i].numseq[j]+65);fflush(stdout);
+#endif
+
+          numatoms[k] = numatoms[k] + letter[ pep[i].numseq[j] ].element[k];
+        }
+      }
+
+#ifdef DEBUG_R
+      printf("numatoms count:\nC\tH\tN\tO\tS\n");
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%0.1f\t",(float) numatoms[k]);
+      }
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%d\t",numatoms[k]);
+      }
+      printf("\n");
+#endif
+
+
+      /* remove 2H10 for each link between amino acids */
+      numatoms[1] = numatoms[1] - 2.0*(float)(pep[i].length - pep[i].zs - 1);
+      numatoms[3] = numatoms[3] - (float)(pep[i].length - pep[i].zs - 1);
+
+#ifdef DEBUG_R
+      printf("removing 2xH and 1xO link gives\n");
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%0.1f\t",(float) numatoms[k]);
+      }
+      for(k=0;k<NUMELEMENTS;k++){
+    	  printf("%d\t",numatoms[k]);
+      }
+      printf("\n");
+#endif
+
+
+      freeAmino(letter);
+      freePepArray(pep,NUMPEP);
 }
 
 

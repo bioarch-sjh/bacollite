@@ -2,8 +2,9 @@
 % Please edit documentation in R/sppdiffs.R
 \name{spp.diffs}
 \alias{spp.diffs}
-\title{get the differences in spectra for two species.
-NB the sequences are sorted by sequence position *within* this function}
+\title{get the differences in sequence between two species.
+NB the sequences are sorted by sequence position *within* this function,
+so there's no need to sort them before calling it.}
 \usage{
 spp.diffs(mcs1, mcs2, name1 = "spp01", name2 = "spp02", verbose = F,
   halt = F)
@@ -25,8 +26,9 @@ spp.diffs(mcs1, mcs2, name1 = "spp01", name2 = "spp02", verbose = F,
 a vector of sequence positions for the position where the differences in the spectrum are
 }
 \description{
-get the differences in spectra for two species.
-NB the sequences are sorted by sequence position *within* this function
+get the differences in sequence between two species.
+NB the sequences are sorted by sequence position *within* this function,
+so there's no need to sort them before calling it.
 }
 \examples{
 sh <- load.mcs("sheep")

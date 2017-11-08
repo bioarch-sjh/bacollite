@@ -1,11 +1,17 @@
 
 #' Wrapper for the 'R_iso_seq' q2e c function, to get theoretical peaks from a sequence
+#' WARNING: This function is obsolete - use ms_fit instead with the same arguments
 #' @param seqeunce the amino acid sequence
 #' @keywords test
 #' @export
 #' @examples
 #' ms_tpeaks("IGQPGAVGPAGIR")
 ms_tpeaks <- function(sequence,verbose=F,ndeamidations=0,nhydroxylations=0){
+
+  message("WARNING: The function ms_tpeaks is obsolete and should not be used")
+  message("Use ms_iso instead (it takes the same arguments)")
+  #readline("Hit <return> to continue")
+
 
   if(verbose){
     message(sprintf("Calculating isotope distributions for the peptide %s",sequence))

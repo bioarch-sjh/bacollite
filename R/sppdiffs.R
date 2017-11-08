@@ -1,7 +1,8 @@
 
 
-#' get the differences in spectra for two species.
-#' NB the sequences are sorted by sequence position *within* this function
+#' get the differences in sequence between two species.
+#' NB the sequences are sorted by sequence position *within* this function,
+#' so there's no need to sort them before calling it.
 #'
 #' @param mcs1 the mammalian collagen sequence for species 1
 #' @param mcs2 the mammalian collagen sequence for species 2
@@ -17,97 +18,118 @@
 #' diffs <- spp.diffs(sh,hu,"sheep","human")
 spp.diffs <- function(mcs1, mcs2, name1="spp01", name2="spp02", verbose = F, halt = F){
 
+    #SORT THE PEPTIDES BY SEQUENCE POSITION
+    mcs1 <- mcs1[order(mcs1$seqpos),]
+    mcs2 <- mcs2[order(mcs2$seqpos),]
 
-  mcs1 <- mcs1[order(mcs1$seqpos),]
-  mcs2 <- mcs2[order(mcs2$seqpos),]
+    helixoffset <- 17
 
-  helixoffset <- 17
+    if(verbose){
+      if(halt)
+        readline(sprintf("There are %d entries for spp1 and %d entries for spp2. We'll go through based on sequence position.  Hit <return>",nrow(mcs1),nrow(mcs2)))
+      else
+        message(sprintf("There are %d entries for spp1 and %d entries for spp2. We'll go through based on sequence position.",nrow(mcs1),nrow(mcs2)))
+    }
 
-  if(verbose){
-    if(halt)
-      readline(sprintf("There are %d entries for spp1 and %d entries for spp2. We'll go through based on sequence position.  Hit <return>",nrow(mcs1),nrow(mcs2)))
-    else
-      message(sprintf("There are %d entries for spp1 and %d entries for spp2. We'll go through based on sequence position.",nrow(mcs1),nrow(mcs2)))
-  }
+    #We need to deal with the repetitions due to deam and hyd:
+    idx1=1
+    idx2=1
 
-  #We need to deal with the repetitions due to deam and hyd:
-  ih=1
-  is=1
+    ndiffs = 0
 
-  ndiffs = 0
+    diff_pos <- NA
 
-  diff_pos <- NA
+    while(idx1 < nrow(mcs1) && idx2 <nrow(mcs2)){
+    #if testing, use:
+    #for(ii in 1:100){#nrow(mcs1)){
 
-  #while(ih < nrow(mcs1) && is <nrow(mcs2)){
-  #if testing, use:
-  for(ii in 1:100){#nrow(mcs1)){
+      if(verbose){
+        message(sprintf("in while loop, idx1 = %d, idx2 = %d, s1$seqpos = %d, s1$seqpos = %d",idx1,idx2,mcs1$seqpos[idx1],mcs2$seqpos[idx2]))
+        if(halt)
+          readline("hit <return> to continue")
+      }
 
-    #message(sprintf("in while loop, ih = %d, is = %d, s1$seqpos = %d, s1$seqpos = %d",ih,is,mcs1$seqpos[ih],mcs2$seqpos[is]))
+      #if helix positions match - or they aren't present in the other seq (deals with INDELS)
+      if(mcs1$seqpos[idx1] == mcs2$seqpos[idx2] ||
+         ( (!mcs1$seqpos[idx1] %in% mcs2$seqpos)
+           &&
+           (!mcs2$seqpos[idx2] %in% mcs1$seqpos)
+         )
 
-    if(mcs1$seqpos[ih] == mcs2$seqpos[is]){
+      ){
 
-      #message("difference found")
+        #message("difference found")
 
-      if(! (mcs1$seq[ih] == mcs2$seq[is])){
+        if(! (mcs1$seq[idx1] == mcs2$seq[idx2])){
 
-        indel <- F
 
-        #NB - should use Smith-Waterman alignment really!
-        # see the 'Biostrings' package - but see if we can find something quicker
-        if(nchar(mcs1$seq[ih]) != nchar(mcs2$seq[is])){
-          message("INDEL")
-          indel <- T
-        }
-        else{
-          message("SUBSITUTION")
-        }
 
-        #check the codes:
-        validseq(mcs1$seq[ih])
-        validseq(mcs2$seq[is])
 
-        #if(verbose){
-        message(sprintf("%s: helixpos %03d %s",name1,mcs1$seqpos[ih]-helixoffset,mcs1$seq[ih]))
-        #}
+          indel <- F
 
-        if(!indel){
-          substr <- mcs1$seq[ih]
-          for(cc in 1:nchar(substr)){
-            ch <- substr(mcs1$seq[ih], cc, cc)
-            cs <- substr(mcs2$seq[is], cc, cc)
-            if(ch == cs)
-              str_sub(substr,cc,cc) <- "."
-            else
-              str_sub(substr,cc,cc) <- "*"
+          #NB - should use Smith-Waterman alignment really!
+          # see the 'Biostrings' package - but see if we can find something quicker
+          if(nchar(mcs1$seq[idx1]) != nchar(mcs2$seq[idx2])){
+            message("INDEL")
+            indel <- T
           }
-          message(sprintf("                   %s",substr))
-        }
+          else{
+            message("SUBSITUTION")
+          }
 
-        #message(sprintf("%03d %s: %03d %s",is,name2,mcs2$seqpos[is],mcs2$seq[is]))
-        message(sprintf("%s: helixpos %03d %s",name2,mcs2$seqpos[is]-helixoffset,mcs2$seq[is]))
-        #readline("difference found. Hit <return>")
-        ndiffs = ndiffs + 1
-        diff_pos[ndiffs]<-mcs1$seqpos[ih]
+          #check the codes:
+          validseq(mcs1$seq[idx1])
+          validseq(mcs2$seq[idx2])
+
+          #if(verbose){
+          message(sprintf("%s: helixpos %03d\n%s",name1,mcs1$seqpos[idx1]-helixoffset,mcs1$seq[idx1]))
+          #if(halt)
+          #  readline("press <return> to continue")
+          # }
+
+          if(!indel){
+            substr <- mcs1$seq[idx1]
+            for(cc in 1:nchar(substr)){
+              ch <- substr(mcs1$seq[idx1], cc, cc)
+              cs <- substr(mcs2$seq[idx2], cc, cc)
+              if(ch == cs)
+                str_sub(substr,cc,cc) <- "."
+              else
+                str_sub(substr,cc,cc) <- "*"
+            }
+            #floor (log10 (abs (x))) + 1 gets the number of digits - we'll need these to do the alignment properly
+            message(sprintf("%s",substr))
+          }
+
+          #message(sprintf("%03d %s: %03d %s",idx2,name2,mcs2$seqpos[idx2],mcs2$seq[idx2]))
+          message(sprintf("%s:\n%s: helixpos %03d\n",mcs2$seq[idx2],name2,mcs2$seqpos[idx2]-helixoffset))
+          #readline("difference found. Hit <return>")
+          ndiffs = ndiffs + 1
+          diff_pos[ndiffs]<-mcs1$seqpos[idx1]
+        }
+      }
+
+
+
+
+
+      #iterate to the next sequence position
+      idx1_new = idx1 + 1
+      while(mcs1$seqpos[idx1] == mcs1$seqpos[idx1_new] && idx1_new < nrow(mcs1))
+        idx1_new = idx1_new + 1
+      idx1 = idx1_new
+
+      idx2_new = idx2 + 1
+      while(mcs2$seqpos[idx2] == mcs2$seqpos[idx2_new] && idx2_new < nrow(mcs2))
+        idx2_new = idx2_new + 1
+      idx2 = idx2_new
+
+      if(verbose){
+        message(sprintf("idx1 idx2 now %d, idx2 is now %d, nrow 1 idx2 %d, nrow 2 is %d",idx1,idx2,nrow(mcs1),nrow(mcs2) ))
       }
     }
 
-    #iterate to the next sequence position
-    ih_new = ih + 1
-    while(mcs1$seqpos[ih] == mcs1$seqpos[ih_new] && ih_new < nrow(mcs1))
-      ih_new = ih_new + 1
-    ih = ih_new
-
-    is_new = is + 1
-    while(mcs2$seqpos[is] == mcs2$seqpos[is_new] && is_new < nrow(mcs2))
-      is_new = is_new + 1
-    is = is_new
-
-    if(verbose){
-      message(sprintf("ih is now %d, is is now %d, nrow 1 is %d, nrow 2 is %d",ih,is,nrow(mcs1),nrow(mcs2) ))
-    }
-  }
-
-  message(sprintf("Found %d differences",ndiffs))
-  return(diff_pos)
+    message(sprintf("Found %d differences",ndiffs))
+    return(diff_pos)
 
 }

@@ -44,15 +44,11 @@ parse.seq <- function(sequence,cuts="K|R",skip="X", massmin = 800, massmax = 350
           for(hh in 0:nhyd){
             for(dd in 0:nglut){
 
-
-        	  masses <- ms_iso(ss,ndeamidations=dd,nhydroxylations=hh)
-
               newrow <- data.frame(
                 seq=as.character(ss)
                 ,nhyd=hh
                 ,nglut=dd
-                #,mass1 = masses$mass[1] + (dd*0.984015)+(hh*16)
-                ,mass1 = masses$mass[1]
+                ,mass1 = masses$mass[1] + (dd*0.984015)+(hh*16)
                 ,seqpos = start
               )
 
@@ -78,9 +74,6 @@ parse.seq <- function(sequence,cuts="K|R",skip="X", massmin = 800, massmax = 350
 
 
   }
-
-  #TODO: demistify why we have to use as.character for sequences...
-  peptides$seq <- as.character(peptides$seq)
   return(peptides)
 
 }

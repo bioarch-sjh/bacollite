@@ -81,7 +81,7 @@ ts_index <- function(sheet,spp,verbose=F){
 
 #we know start and end, so we can calculate n_hyds in this range
 #phydp <- get_hydroxylations(sheet,start,end)
-get_hydroxylations <- function(sheet,start,end,dopause=T,verbose=F){
+get_hydroxylations <- function(sheet,start,end,spp="human",dopause=T,verbose=F){
 
 
   hidx<-ts_index(sheet,"hydroxylation")
@@ -89,11 +89,27 @@ get_hydroxylations <- function(sheet,start,end,dopause=T,verbose=F){
     readline("Couldn't find the hydroxylation row - check the sheet!\nhit <return> to continue")
   }
 
-  #TODO: Check this is a better method:
+
   #suppressWarnings because we don't mind that empty cells become NAs by coercion
   d <- suppressWarnings(as.numeric(sheet[hidx,start:end]))
-  i <- (start-4):(end-4)
 
+  # Need to remove probabilities where the seqeunce letter isn't 'P'
+  # This can happen because the P may not be present in the species under consideration
+  spidx<-ts_index(sheet,spp)
+  seq <- sheet[spidx,start:end]
+  isnt_p <- which(seq!="P")
+  d[isnt_p] <- 0
+
+  #handle indels
+  #TODO: has to be a more efficient way of doing this
+  if(anyNA(seq)){
+    for(i in 1:length(seq)){
+      if(is.na(seq[i])) d[i] = 0
+    }
+  }
+
+  #create a helixpos index
+  i <- (start-4):(end-4)
   hoffset <- -16
   output<-data.frame(helixpos=i[which(d>0)]+hoffset,pos=i[which(d>0)],prob=d[which(d>0)])
 
@@ -204,7 +220,10 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
       sequence <- paste0(seqraw,collapse="")
 
 
-      masses <- ms_tpeaks(sequence)
+      #TODO: Now we are calculating mass by *atom count*, we need to do the calculation afresh for each hyd/deam combination
+      #      in the for loop below - this will take a little longer but will be more precise.
+      #masses <- ms_tpeaks(sequence)
+      masses <- ms_iso(sequence)
 
       if(verbose){
         message("Masses:")
@@ -216,7 +235,7 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
         nhyd <- str_count(sequence,"P")
         nglut <- str_count(sequence,"Q") + str_count(sequence,"N")
 
-        phydp <- get_hydroxylations(sheet,start,end)
+        phydp <- get_hydroxylations(sheet,start,end,spp)
 
         #create the basics of the row
         #hdat <- data.frame(sequence,start-4,end-start,nhyd)
@@ -255,11 +274,15 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
               #           mass1=as.numeric(),
               #           prob=as.numeric())
 
+
+              masses <- ms_iso(sequence,ndeamidations=d,nhydroxylations=h-1)
+
               newrow <- data.frame(
                            seq=as.character(sequence)
                           ,nhyd=pnh$nhyd[h]
                           ,nglut=d
-                          ,mass1 = masses$mass[1] + (d*0.984015)+(pnh$nhyd[h]*16)
+                                                   # no need to do this now we are using ms_iso
+                          ,mass1 = masses$mass[1]  # + (d*0.984015)+(pnh$nhyd[h]*16)
                           ,prob =  pnh$prob[h]
                           ,seqpos = start - shoff + 1
                         )
@@ -316,6 +339,15 @@ load.mcs<-function(spp="human", sheet=bioarch_mammal_sequences,massmin=800,massm
 
     }
   }
+
+
+  #Generate the collagen labelling based on sequence position
+  #
+  # currently anything with seqpos>1040 is collagen 2 - that's the number of peptides from the "QLSYGY"
+  # motif at the beginning of the per-peptide cells in the spreadsheet (column D)
+  sdata$col <-1
+  sdata$col[sdata$seqpos>1040] <- 2
+
 
   #Finally, let's sort the data by mass
   sdata<-sdata[order(sdata$mass1),]

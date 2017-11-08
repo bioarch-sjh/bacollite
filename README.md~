@@ -48,6 +48,7 @@ sequences <- gs_read(mc_meta)
 Alternatively, the google sheet can be exported as a .csv file to your computer, and then loaded like so: 
 
 ```
+ bms0.1.2 <- read.table(file="Mammalian Collagen Sequences v0.1.2 - Mammal.csv",sep=",")
 
 ```
 
