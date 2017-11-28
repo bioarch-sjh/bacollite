@@ -18,6 +18,6 @@ library(devtools)
 Then install bacollite:
 
 ```
-devtools::intstall_github("bioarch-sjh/bacollite")
+devtools::install_github("bioarch-sjh/bacollite")
 ```
 

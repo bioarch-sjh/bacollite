@@ -53,9 +53,9 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
     	cd1 <- ms_iso(peptides$seq[i],ndeamidations=peptides$nglut[i],nhydroxylations=peptides$nhyd[i])
     }
     else{
-		cd1 <- ms_tpeaks(peptides$seq[i])
-		cd1$mass <- cd1$mass + (peptides$nglut[i]*0.984015)+(peptides$nhyd[i]*16)
-	}
+  		cd1 <- ms_tpeaks(peptides$seq[i])
+  		cd1$mass <- cd1$mass + (peptides$nglut[i]*0.984015)+(peptides$nhyd[i]*16)
+  	}
     warn_mass_error<-F
 
     #TEST

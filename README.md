@@ -1,9 +1,13 @@
 
 
+#Installation
+
+see `INSTALL.md` in this directory
 
 
 
-#Getting help
+
+#Getting help with R
 
 Sometimes getting help in R is onfusing. Here's some things you can try:
 

@@ -168,7 +168,8 @@ load.sequence<-function(spp="human",  sheet=bioarch_mammal_sequences, verbose = 
 
 
 
-#' Load peptides from the mammalian collagen sequences googlesheet
+#' Load peptides from the mammalian collagen sequences googlesheet and use the proline hydroxylation
+#' probabilites contained in the sheet to estimate the probability of each number of hydroxyprolines in each peptide
 #'
 #' @param spp the name of the species whose peptides will be loaded.
 #' @param sheet the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences, which is the latest version of the Bioarch mammal sequence dataset
