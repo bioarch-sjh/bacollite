@@ -167,9 +167,10 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
             }
 
             mymain <- sprintf(
-              "plot %d, entry %d, mass %0.3f\n%s\nndean = %d, nhyd = %d lag: %0.2f,%0.2f,%0.2f cor: %0.2f,%0.2f,%0.2f",
+              "plot %d, entry %d, mass %0.3f\npos = %d %s\nndean = %d, nhyd = %d lag: %0.2f,%0.2f,%0.2f cor: %0.2f,%0.2f,%0.2f",
               plotno,i,peptides$mass1[i],
-              peptides$seq[i],peptides$nglut[i],peptides$nhyd[i],
+              peptides$seqpos[i],peptides$seq[i],
+              peptides$nglut[i],peptides$nhyd[i],
               align1$lag,align2$lag,align3$lag,
               align1$cor,align2$cor,align3$cor)
 

@@ -2,7 +2,8 @@
 % Please edit documentation in R/ms_load.R
 \name{load.mcs}
 \alias{load.mcs}
-\title{Load peptides from the mammalian collagen sequences googlesheet}
+\title{Load peptides from the mammalian collagen sequences googlesheet and use the proline hydroxylation
+probabilites contained in the sheet to estimate the probability of each number of hydroxyprolines in each peptide}
 \usage{
 load.mcs(spp = "human", sheet = bioarch_mammal_sequences, massmin = 800,
   massmax = 3500, verbose = F)
@@ -19,7 +20,8 @@ load.mcs(spp = "human", sheet = bioarch_mammal_sequences, massmin = 800,
 \item{verbose}{verbose processing with more detail. Useful for debugging}
 }
 \description{
-Load peptides from the mammalian collagen sequences googlesheet
+Load peptides from the mammalian collagen sequences googlesheet and use the proline hydroxylation
+probabilites contained in the sheet to estimate the probability of each number of hydroxyprolines in each peptide
 }
 \examples{
 hcs <- load.mcs()
