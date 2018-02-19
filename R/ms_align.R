@@ -15,13 +15,31 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 # This replaces 'ba_ms_align' in bioarch/dev folder
 ###############################################################################
 ###############################################################################
+#' Align a theoretical peptide with a mass spec
+#'
+#' @param ts theoretical spectrum peaks for a particular peptide
+#' @param data the MALDI
+#' @param txlim the range of masses over which to carry out the alignment
+#' @param doplot whether to generate a plot of the alignment
+#' @param verbose whether to write messages whilst processing
+#' @return a dataframe holding the following fields:
+#'   \item{lag1}{The lag for sample 1}
+#'   \item{lag2}{The lag for sample 2}
+#'   \item{lag3}{The lag for sample 3}
+#'   \item{cor1}{The correlation coefficient for sample 1}
+#'   \item{cor2}{The correlation coefficient for sample 2}
+#'   \item{cor3}{The correlation coefficient for sample 3}
+#'   \item{ion1}{The proportion of total ions for this peptide in sample 1}
+#'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
+#'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
+#' @export
 ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
 
   if(doplot){
     #save the old par
-    op <- par(no.readonly = TRUE)
+    #op <- par(no.readonly = TRUE)
     #set up a new plot window to show the alignment
-    dev.new()
+    #dev.new()
     #set new par
     par(mar=c(0.9,2.3,2.9,.3), mfrow = c(3,1), oma=c(5,0,2,0))
   }
@@ -69,7 +87,7 @@ ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
 
   ######################################################################################
   #Now we can do the cross-correlation:                                 4*mylagmax
-  ccd <- ccf(yri$y,yii$y,ylim=c(-0.1,0.5),plot=doplot,axes=F, lag.max = mylagmax)
+  ccd <- ccf(yri$y,yii$y,ylim=c(-0.1,0.5),plot=doplot,axes=F, lag.max = mylagmax, main = "")
   #message(sprintf("Length yr = %d, len yi = %d",length(yr),length(yi)))
   #plot(yr,yi,type="l",ylim=c(0,max(1000,max(yi)))  )
 
@@ -93,31 +111,25 @@ ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
 
   res_lrmax = lagset[which.max(lagset$cor),]
 
+  td <- sprintf("Cross-Correlation\n max c=%.2f, at lag=%0.3f\n max inrange c = %.2f at lag %.3f",res_max$cor,res_max$lag*myby,res_lrmax$cor,res_lrmax$lag * myby)
+
   if(verbose){
     message("\nComparing max correlation with within-range correlation:")
     message(sprintf("  cor = %0.2f, lag = %0.2f\nlrcor = %0.2f, lrlag = %0.2f\n",out$cor,out$lag,res_lrmax$cor,res_lrmax$lag * myby))
 
     #Here's where we can do a more detailed analysis
     message(sprintf("max cor = %0.2f at lag %0.2f",out$cor, out$lag))
-    
+
     message(sprintf("There are %d points in the correlation from %0.2f to %0.2f (scaled to %0.2f to %0.2f)",nrow(res),res$lag[1],res$lag[nrow(res)],res$lag[1]*myby,res$lag[nrow(res)]*myby))
 
-
-    td <- sprintf("Cross-Correlation\n max c=%.2f, at lag=%0.3f\n max inrange c = %.2f at lag %.3f",res_max$cor,res_max$lag*myby,res_lrmax$cor,res_lrmax$lag * myby)
-
     message(td)
-  #readline(sprintf("Hit <return> for %s",td))
+    #readline(sprintf("Hit <return> for %s",td))
   }
+
   if(doplot){
     points(x=res_max$lag,y=res_max$cor,pch=19,col="red")
     points(x=res_lrmax$lag,y=res_lrmax$cor,pch=10,col="green",cex = 3)
   }
-
-
-
-
-
-
 
   labelvals = c(-1,-laglim,0,laglim,1)
 
@@ -138,17 +150,20 @@ ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
     #plot the peaks from the sequence
     ba_plotseqpeaks(ts,txlim)
     #####plotseqpeaks(ocow,myxlim)
-
-    message(sprintf("Lag is %0.3f",res_max$lag*myby))
+  
+    if(verbose)
+      message(sprintf("Lag is %0.3f",res_max$lag*myby))
 
 
 
     mycol="red"
-    if(res_max$cor > 0.1)
-      if(abs(res_max$lag*myby) < 0.4)
+    if(res_max$cor > 0.1){
+      if(abs(res_max$lag*myby) < 0.4){
         mycol="green"
-    else{
-      message(sprintf("Lag too great: %0.3f",res_max$lag*myby))
+      }
+      else{
+        message(sprintf("Lag too great: %0.3f",res_max$lag*myby))
+      }
     }
     else{
       message("Weak correlation - ignore")
@@ -157,14 +172,13 @@ ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
     lines(x=data[,1],    y = data[,2]/max(data[,2]),col="grey50")
     lines(x=data[,1]+res_max$lag*myby,y = data[,2]/max(data[,2]),col=mycol)
 
-
-
-    readline("hit <return> to close the plot window and carry on")
-    dev.off()
-    plot.new()
+    #readline("hit <return> to close the plot window and carry on")
+    #dev.off()
+    #plot.new()
     #dev.set(dev.prev()) # go back to first
     #reset the par
     #op
+    #par(op)
   }
 
   return(out)

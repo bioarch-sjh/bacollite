@@ -2,7 +2,7 @@
 % Please edit documentation in R/ba_nhyd.R
 \name{ba_nhyd}
 \alias{ba_nhyd}
-\title{Caluclate the probability of each possible number of hydroxylations given a vector of probabilites of each hydroxylation}
+\title{Calculate the probability of each possible number of hydroxylations given a vector of probabilites of each hydroxylation}
 \usage{
 ba_nhyd(hprobs, verbose = F)
 }
@@ -10,7 +10,7 @@ ba_nhyd(hprobs, verbose = F)
 \item{hprobs}{a vector of probabilites for each hydroxylation site in the peptide}
 }
 \description{
-Caluclate the probability of each possible number of hydroxylations given a vector of probabilites of each hydroxylation
+Calculate the probability of each possible number of hydroxylations given a vector of probabilites of each hydroxylation
 }
 \examples{
 ba_nhyd(c(0.1,0.2,0.9))

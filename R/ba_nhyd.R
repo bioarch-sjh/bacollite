@@ -4,7 +4,7 @@
 
 
 
-#' Caluclate the probability of each possible number of hydroxylations given a vector of probabilites of each hydroxylation
+#' Calculate the probability of each possible number of hydroxylations given a vector of probabilites of each hydroxylation
 #'
 #' @param hprobs a vector of probabilites for each hydroxylation site in the peptide
 #' @keywords "Mass spectrum",

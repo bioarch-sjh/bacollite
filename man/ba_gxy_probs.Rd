@@ -2,10 +2,10 @@
 % Please edit documentation in R/ba_gxy_probs.R
 \name{ba_gxy_probs}
 \alias{ba_gxy_probs}
-\title{Calculate the 'GXY' frame of a peptide, and use probabilities if hdroxylation for prolines at different positions
+\title{Calculate the 'GXY' frame of a peptide, and use probabilities of hdroxylation for prolines at different positions
 to estimate the probability of every possible level of hydroxylation}
 \usage{
-ba_gxy_probs(seq, xprob = 0.05, yprob = 0.95, xyxprob = 0.75,
+ba_gxy_probs(seq, xprob = 0.05, yprob = 0.95, xyxprob = 0.5,
   xyyprob = 0.99, verbose = F)
 }
 \arguments{
@@ -22,7 +22,7 @@ ba_gxy_probs(seq, xprob = 0.05, yprob = 0.95, xyxprob = 0.75,
 \item{verbose}{set to TRUE for more verbose processing}
 }
 \description{
-Calculate the 'GXY' frame of a peptide, and use probabilities if hdroxylation for prolines at different positions
+Calculate the 'GXY' frame of a peptide, and use probabilities of hdroxylation for prolines at different positions
 to estimate the probability of every possible level of hydroxylation
 }
 \examples{
