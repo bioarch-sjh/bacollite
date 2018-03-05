@@ -9,7 +9,7 @@
 #' @export
 #' @examples
 #' seq_to_atoms("IGQPGAVGPAGIR")
-seq_to_atoms <- function(sequence,ndeamidations,nhydroxylations,verbose=F){
+seq_to_atoms <- function(sequence,ndeamidations=0,nhydroxylations=0,verbose=F){
 
 
   if(verbose){
@@ -74,7 +74,7 @@ seq_to_atoms <- function(sequence,ndeamidations,nhydroxylations,verbose=F){
 
     #Now we've done the mods, we can calculate the isotopes based on the atoms
 
-    return (result)
+    return (atoms)
 
   }
   else{
