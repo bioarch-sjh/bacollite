@@ -11,11 +11,11 @@ ms_iso_atom <- function(atoms,verbose=F){
 
   if(length(atoms)< 5){
     message("ms_iso_atom error: Vector with five entries needed\nreturning NA")
-    return NA
+    return (NA)
     }
   if(is.numeric(atoms) == F){
     message("ms_iso_atom error: Vector with five integers needed\nreturning NA")
-    return NA
+    return (NA)
     }
     
   
