@@ -143,8 +143,16 @@ parse.seq <- function(sequence,cuts="K|R",skip="X", massmin = 800, massmax = 350
 
   }
 
-  #TODO: demistify why we have to use as.character for sequences...
-  peptides$seq <- as.character(peptides$seq)
+  #return NA if no peptides found within the mass range
+  if(pepidx==1){
+    if(verbose)message("No peptides found, returning NA")
+    return(NA)
+  }else{
+    if(verbose)message(sprintf("%d Peptides found",pepidx-1))
+    peptides$seq <- as.character(peptides$seq)
+    return(peptides)
+  }
+
   return(peptides)
 
 }
