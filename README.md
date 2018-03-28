@@ -9,7 +9,7 @@ see `INSTALL.md` in this directory
 
 # Getting help with R
 
-Sometimes getting help in R is onfusing. Here's some things you can try:
+Sometimes getting help in R is confusing. Here's some things you can try:
 
 ```
 bacollite::    # lists availble functions in a pop-out in rstudio
