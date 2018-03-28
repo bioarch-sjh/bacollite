@@ -1,13 +1,13 @@
 
 
-#Installation
+# Installation
 
 see `INSTALL.md` in this directory
 
 
 
 
-#Getting help with R
+# Getting help with R
 
 Sometimes getting help in R is onfusing. Here's some things you can try:
 
@@ -19,13 +19,13 @@ apropos("foo") # list all functions containing string foo
 example(foo)   # show an example of function foo
 ```
 
-##Vignettes
+## Vignettes
 
 
 
 
-#Seqeunce Data
-##Bioarch Mammalian Collagen Dataset
+# Seqeunce Data
+## Bioarch Mammalian Collagen Dataset
 
 A version of this dataset is available within the package as an R object called bioarch_mammal_sequences. The data set currently holds sequences for 
 
@@ -37,7 +37,7 @@ A version of this dataset is available within the package as an R object called 
 It is based on the  sheet
 [https://docs.google.com/spreadsheets/d/1QMIJWZtAZ8zJ4uwbAUpwTp_deBwKeVJ8FoBQopXL_dc/edit?usp=sharing], as at 09:48 on 11 January 2017
 
-##Loading other seqeunce data:
+## Loading other seqeunce data:
 
 Other sequence sets can be loaded via googleshets: 
 
