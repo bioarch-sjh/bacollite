@@ -9,6 +9,7 @@
 #' @param vlevel verbose level. 0 means no comments, 3 means full comments
 #' @param corlim threshold for correlation scores
 #' @param laglim threshold for lag scores
+#' @param gauss the level of gaussian smoothing. defaults to NA (no smoothing)
 #' @param ignore_warnings whether to ignore the check for the input and calculated mass
 #' @return a dataframe holding the following fields:
 #'   \item{hit}{Whether a match was found for this peptide}
@@ -22,7 +23,7 @@
 #'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
 #'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6,ignore_warnings=F,use_ms_iso=T){
+ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6,gauss=NA,ignore_warnings=F,use_ms_iso=T){
 
   #initialise:
   plotno <- 0
@@ -48,7 +49,7 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
     #get the mass data...
     #TODO: hasn't this been done?
     #cd1 <- q2e::q2e_tpeaks(peptides$seq[i])
-    
+
     if(use_ms_iso){
     	cd1 <- ms_iso(peptides$seq[i],ndeamidations=peptides$nglut[i],nhydroxylations=peptides$nhyd[i])
     }
@@ -122,9 +123,9 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
 
         myxlim = c(lbl,ubl)
 
-        align1 <- ms_align(cdshift,subms1,myxlim)
-        align2 <- ms_align(cdshift,subms2,myxlim)
-        align3 <- ms_align(cdshift,subms3,myxlim)
+        align1 <- ms_align(cdshift,subms1,myxlim,gauss)
+        align2 <- ms_align(cdshift,subms2,myxlim,gauss)
+        align3 <- ms_align(cdshift,subms3,myxlim,gauss)
 
         if(vlevel > 0){
           message(sprintf("align1$lag is %0.3f, cor is %0.3f",align1$lag,align1$cor))

@@ -3,9 +3,14 @@ Type: Package
 Title: analysis of MALDI and LC-MS/MS spectral data using sequence data (mainly for collagen)
 Version: 0.1
 Date: 2017-01-04
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Authors@R: c(
+            person("Simon", "Hickinbotham", email = "sjh@palaeome.org", role = c("aut", "cre")),
+            person("Keri", "Rowsell", email = "keri.rowsell@york.ac.uk", role = c("ctb")),
+            person("Sarah", "Fiddyment", email = "sarah.fiddyment@york.ac.uk", role = c("ctb")),
+            person("Matthew", "Collins", email = "matthew@palaeome.org", role = c("aut"))
+            )
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: GPL-3
 LazyData: TRUE
 Depends: stringr,
     bioarch

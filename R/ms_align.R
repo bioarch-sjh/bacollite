@@ -20,6 +20,7 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #' @param ts theoretical spectrum peaks for a particular peptide
 #' @param data the MALDI
 #' @param txlim the range of masses over which to carry out the alignment
+#' @param gauss the level of gaussian smoothing. defaults to NA (no smoothing)
 #' @param doplot whether to generate a plot of the alignment
 #' @param verbose whether to write messages whilst processing
 #' @return a dataframe holding the following fields:
@@ -33,7 +34,7 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
 #'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
+ms_align <- function(ts,data,txlim,gauss=NA,doplot=F, verbose=F){
 
   if(doplot){
     #save the old par
@@ -78,6 +79,14 @@ ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
     idx <- which.min(abs(yri$x-ts$mass[i]))
     yri$y[idx] <- ts$prob[i]
   }
+
+  #Apply gaussian smoothing if set
+  if(!is.na(gauss)){
+    yrii <- ksmooth(yri$x,yri$y,"normal",bandwidth = gauss)
+    yrii$y <- yrii$y / max(yrii$y)
+    yri$y <- yrii$y
+  }
+
 
   #TODO: Pass this data out so we can plot it elsewhere
   if(doplot){
@@ -150,7 +159,7 @@ ms_align <- function(ts,data,txlim,doplot=F, verbose=F){
     #plot the peaks from the sequence
     ba_plotseqpeaks(ts,txlim)
     #####plotseqpeaks(ocow,myxlim)
-  
+
     if(verbose)
       message(sprintf("Lag is %0.3f",res_max$lag*myby))
 
