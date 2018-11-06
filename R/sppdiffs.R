@@ -1,5 +1,5 @@
 
-
+#' @name spp.diffs
 #' get the differences in sequence between two species.
 #' NB the sequences are sorted by sequence position *within* this function,
 #' so there's no need to sort them before calling it.
@@ -10,7 +10,7 @@
 #' @param name2 (optional) the name of species 2
 #' @param verbose (optional) whether to print messages while processing
 #' @param halt (optional) whether to pause until <return> is hit while processing
-#' @return a vector of sequence positions for the position where the differences in the spectrum are
+#' @return Returns a vector of sequence positions for the position where the differences in the spectrum are
 #' @export
 #' @examples
 #' sh <- load.mcs("sheep")
@@ -62,9 +62,6 @@ spp.diffs <- function(mcs1, mcs2, name1="spp01", name2="spp02", verbose = F, hal
 
         if(! (mcs1$seq[idx1] == mcs2$seq[idx2])){
 
-
-
-
           indel <- F
 
           #NB - should use Smith-Waterman alignment really!
@@ -74,18 +71,18 @@ spp.diffs <- function(mcs1, mcs2, name1="spp01", name2="spp02", verbose = F, hal
             indel <- T
           }
           else{
-            message("SUBSITUTION")
+            if(verbose)message("SUBSITUTION")
           }
 
           #check the codes:
           validseq(mcs1$seq[idx1])
           validseq(mcs2$seq[idx2])
 
-          #if(verbose){
-          message(sprintf("%s: helixpos %03d\n%s",name1,mcs1$seqpos[idx1]-helixoffset,mcs1$seq[idx1]))
+          if(verbose){
+            message(sprintf("%s: helixpos %03d\n%s",name1,mcs1$seqpos[idx1]-helixoffset,mcs1$seq[idx1]))
           #if(halt)
           #  readline("press <return> to continue")
-          # }
+          }
 
           if(!indel){
             substr <- mcs1$seq[idx1]
@@ -98,11 +95,11 @@ spp.diffs <- function(mcs1, mcs2, name1="spp01", name2="spp02", verbose = F, hal
                 str_sub(substr,cc,cc) <- "*"
             }
             #floor (log10 (abs (x))) + 1 gets the number of digits - we'll need these to do the alignment properly
-            message(sprintf("%s",substr))
+            if(verbose)message(sprintf("%s",substr))
           }
 
           #message(sprintf("%03d %s: %03d %s",idx2,name2,mcs2$seqpos[idx2],mcs2$seq[idx2]))
-          message(sprintf("%s:\n%s: helixpos %03d\n",mcs2$seq[idx2],name2,mcs2$seqpos[idx2]-helixoffset))
+          if(verbose)message(sprintf("%s:\n%s: helixpos %03d\n",mcs2$seq[idx2],name2,mcs2$seqpos[idx2]-helixoffset))
           #readline("difference found. Hit <return>")
           ndiffs = ndiffs + 1
           diff_pos[ndiffs]<-mcs1$seqpos[idx1]
@@ -129,7 +126,7 @@ spp.diffs <- function(mcs1, mcs2, name1="spp01", name2="spp02", verbose = F, hal
       }
     }
 
-    message(sprintf("Found %d differences",ndiffs))
+    if(verbose)message(sprintf("Found %d differences",ndiffs))
     return(diff_pos)
 
 }
