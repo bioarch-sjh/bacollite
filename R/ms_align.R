@@ -21,8 +21,10 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #' @param data the MALDI
 #' @param txlim the range of masses over which to carry out the alignment
 #' @param gauss the level of gaussian smoothing. defaults to NA (no smoothing)
+#' @param normlim the minimum upper value that the intensities should be normalised to. Defaults to NA (no minimum)
 #' @param doplot whether to generate a plot of the alignment
 #' @param verbose whether to write messages whilst processing
+#' @param ccylim range of y axis in cross-correlation plot (defaults to [-0.1,0.5])
 #' @return a dataframe holding the following fields:
 #'   \item{lag1}{The lag for sample 1}
 #'   \item{lag2}{The lag for sample 2}
@@ -34,7 +36,7 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
 #'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_align <- function(ts,data,txlim,gauss=NA,doplot=F, verbose=F){
+ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccylim=c(-0.1,0.5)){
 
   if(doplot){
     #save the old par
@@ -63,7 +65,14 @@ ms_align <- function(ts,data,txlim,gauss=NA,doplot=F, verbose=F){
   #Resample against xout.
   yii <- approx(x=data[,1], y=data[,2], xout=xout, method="linear", rule = 2)
   #renormalise this segment
-  yii$y = yii$y/max(yii$y)
+  #yii$y = yii$y/max(yii$y)
+
+  nmax = max(yii$y)
+  if(!is.na(normlim)){
+    nmax = max(nmax,normlim)
+  }
+
+  yii$y = (yii$y-min(yii$y))/(nmax-min(yii$y))
 
   #TODO: Pass this data out so we can plot it elsewhere
   if(doplot){
@@ -96,7 +105,7 @@ ms_align <- function(ts,data,txlim,gauss=NA,doplot=F, verbose=F){
 
   ######################################################################################
   #Now we can do the cross-correlation:                                 4*mylagmax
-  ccd <- ccf(yri$y,yii$y,ylim=c(-0.1,0.5),plot=doplot,axes=F, lag.max = mylagmax, main = "")
+  ccd <- ccf(yri$y,yii$y,ylim=ccylim,plot=doplot,axes=F, lag.max = mylagmax, main = "")
   #message(sprintf("Length yr = %d, len yi = %d",length(yr),length(yi)))
   #plot(yr,yi,type="l",ylim=c(0,max(1000,max(yi)))  )
 
