@@ -5,7 +5,7 @@
 \title{Match a set of peptides with a Mass Spec}
 \usage{
 ms_fit(peptides, sample, doplot = T, force = F, vlevel = 0, corlim = 0,
-  laglim = 0.6, ignore_warnings = F, use_ms_iso = T)
+  laglim = 0.6, gauss = NA, ignore_warnings = F, use_ms_iso = T)
 }
 \arguments{
 \item{peptides}{the set of peptides, in bacollite format}
@@ -21,6 +21,8 @@ ms_fit(peptides, sample, doplot = T, force = F, vlevel = 0, corlim = 0,
 \item{corlim}{threshold for correlation scores}
 
 \item{laglim}{threshold for lag scores}
+
+\item{gauss}{the level of gaussian smoothing. defaults to NA (no smoothing)}
 
 \item{ignore_warnings}{whether to ignore the check for the input and calculated mass}
 }

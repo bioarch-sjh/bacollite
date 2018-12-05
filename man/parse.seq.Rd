@@ -5,7 +5,7 @@
 \title{Parse an amino acid sequence into a set of peptides, incorporating hydroxylation and deamidation modifications, and calculating mass}
 \usage{
 parse.seq(sequence, cuts = "K|R", skip = "X", massmin = 800,
-  massmax = 3500, verbose = F, max.missed.cleaves = 0)
+  massmax = 3500, verbose = F, max.missed.cleaves = 0, cutbefore = F)
 }
 \arguments{
 \item{cuts}{a regular expression listing the amino acids that the sequence should be cut at. Defaults to Trypsing cut sites K & R}

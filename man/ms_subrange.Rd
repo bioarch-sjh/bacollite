@@ -14,7 +14,7 @@ ms_subrange(ms, lbl, ubl)
 \item{ubl}{the upper bound limit}
 }
 \value{
-the subrage
+the subrange
 }
 \description{
 Get all spectrum data between a mass range

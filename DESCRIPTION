@@ -12,8 +12,8 @@ Authors@R: c(
 Description: More about what it does (maybe more than one line)
 License: GPL-3
 LazyData: TRUE
-Depends: stringr,
-    bioarch
+Depends: 
+    stringr
 Imports:
     Rcpp
 Remotes: github::franticspider/bioarch/bioarch

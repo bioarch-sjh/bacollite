@@ -3,7 +3,7 @@
 #' @param ms the mass spectrum
 #' @param lbl the lower bound limit
 #' @param ubl the upper bound limit
-#' @return the subrage
+#' @return the subrange
 #' @example
 #' sub <- ms_subrange(spectrum,1589.5,1595.5)
 #' @export

@@ -4,7 +4,7 @@
 \alias{ms_align}
 \title{Align a theoretical peptide with a mass spec}
 \usage{
-ms_align(ts, data, txlim, doplot = F, verbose = F)
+ms_align(ts, data, txlim, gauss = NA, doplot = F, verbose = F)
 }
 \arguments{
 \item{ts}{theoretical spectrum peaks for a particular peptide}
@@ -12,6 +12,8 @@ ms_align(ts, data, txlim, doplot = F, verbose = F)
 \item{data}{the MALDI}
 
 \item{txlim}{the range of masses over which to carry out the alignment}
+
+\item{gauss}{the level of gaussian smoothing. defaults to NA (no smoothing)}
 
 \item{doplot}{whether to generate a plot of the alignment}
 
