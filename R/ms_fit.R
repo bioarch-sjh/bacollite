@@ -3,12 +3,14 @@
 #' Match a set of peptides with a Mass Spec
 #'
 #' @param peptides the set of peptides, in bacollite format
-#' @param sample the MS sample data, in bacollite format
+#' @param sample the MS sample data, in bacollite format - three replicates required
 #' @param doplot boolean to say if the fit should be plotted
 #' @param force boolean to say if *all* fits should be calculated, instead of just the good matches
 #' @param vlevel verbose level. 0 means no comments, 3 means full comments
 #' @param corlim threshold for correlation scores
 #' @param laglim threshold for lag scores
+#' @param gauss the level of gaussian smoothing. defaults to NA (no smoothing)
+#' @param ionlim the fraction of the highest intensity that is used to calculate the scaling limit for ms_align
 #' @param ignore_warnings whether to ignore the check for the input and calculated mass
 #' @return a dataframe holding the following fields:
 #'   \item{hit}{Whether a match was found for this peptide}
@@ -22,7 +24,7 @@
 #'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
 #'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6,ignore_warnings=F,use_ms_iso=T){
+ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6,gauss=NA,ionlim=NA,ignore_warnings=F,use_ms_iso=T){
 
   #initialise:
   plotno <- 0
@@ -48,7 +50,7 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
     #get the mass data...
     #TODO: hasn't this been done?
     #cd1 <- q2e::q2e_tpeaks(peptides$seq[i])
-    
+
     if(use_ms_iso){
     	cd1 <- ms_iso(peptides$seq[i],ndeamidations=peptides$nglut[i],nhydroxylations=peptides$nhyd[i])
     }
@@ -122,9 +124,17 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
 
         myxlim = c(lbl,ubl)
 
-        align1 <- ms_align(cdshift,subms1,myxlim)
-        align2 <- ms_align(cdshift,subms2,myxlim)
-        align3 <- ms_align(cdshift,subms3,myxlim)
+        #set the normalisation limits if needed
+        normlim=c(NA,NA,NA)
+        if(!is.na(ionlim)){
+          normlim[1] <- max(sample$s1$intensity)*ionlim
+          normlim[2] <- max(sample$s2$intensity)*ionlim
+          normlim[3] <- max(sample$s3$intensity)*ionlim
+        }
+
+        align1 <- ms_align(cdshift,subms1,myxlim,gauss,normlim[1])
+        align2 <- ms_align(cdshift,subms2,myxlim,gauss,normlim[2])
+        align3 <- ms_align(cdshift,subms3,myxlim,gauss,normlim[3])
 
         if(vlevel > 0){
           message(sprintf("align1$lag is %0.3f, cor is %0.3f",align1$lag,align1$cor))
@@ -167,7 +177,7 @@ ms_fit<-function(peptides,sample,doplot=T,force=F,vlevel=0,corlim=0.0,laglim=0.6
             }
 
             mymain <- sprintf(
-              "plot %d, entry %d, mass %0.3f\npos = %d %s\nndean = %d, nhyd = %d lag: %0.2f,%0.2f,%0.2f cor: %0.2f,%0.2f,%0.2f",
+              "plot %d, entry %d, mass %0.3f\npos = %d %s\nndeam = %d, nhyd = %d lag: %0.2f,%0.2f,%0.2f cor: %0.2f,%0.2f,%0.2f",
               plotno,i,peptides$mass1[i],
               peptides$seqpos[i],peptides$seq[i],
               peptides$nglut[i],peptides$nhyd[i],

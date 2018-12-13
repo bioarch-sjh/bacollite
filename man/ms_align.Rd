@@ -4,7 +4,8 @@
 \alias{ms_align}
 \title{Align a theoretical peptide with a mass spec}
 \usage{
-ms_align(ts, data, txlim, doplot = F, verbose = F)
+ms_align(ts, data, txlim, gauss = NA, normlim = NA, doplot = F,
+  verbose = F, ccylim = c(-0.1, 0.5))
 }
 \arguments{
 \item{ts}{theoretical spectrum peaks for a particular peptide}
@@ -13,9 +14,15 @@ ms_align(ts, data, txlim, doplot = F, verbose = F)
 
 \item{txlim}{the range of masses over which to carry out the alignment}
 
+\item{gauss}{the level of gaussian smoothing. defaults to NA (no smoothing)}
+
+\item{normlim}{the minimum upper value that the intensities should be normalised to. Defaults to NA (no minimum)}
+
 \item{doplot}{whether to generate a plot of the alignment}
 
 \item{verbose}{whether to write messages whilst processing}
+
+\item{ccylim}{range of y axis in cross-correlation plot (defaults to [-0.1,0.5])}
 }
 \value{
 a dataframe holding the following fields:

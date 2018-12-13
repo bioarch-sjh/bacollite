@@ -20,8 +20,11 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #' @param ts theoretical spectrum peaks for a particular peptide
 #' @param data the MALDI
 #' @param txlim the range of masses over which to carry out the alignment
+#' @param gauss the level of gaussian smoothing. defaults to NA (no smoothing)
+#' @param normlim the minimum upper value that the intensities should be normalised to. Defaults to NA (no minimum)
 #' @param doplot whether to generate a plot of the alignment
 #' @param verbose whether to write messages whilst processing
+#' @param ccylim range of y axis in cross-correlation plot (defaults to [-0.1,0.5])
 #' @return a dataframe holding the following fields:
 #'   \item{lag1}{The lag for sample 1}
 #'   \item{lag2}{The lag for sample 2}
@@ -33,7 +36,7 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
 #'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_align <- function(ts,data,txlim,cctitle=NA,doplot=F, verbose=F){
+ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,cctitle=NA,doplot=F, verbose=F,ccylim=c(-0.1,0.5)){
 
   if(doplot){
     #save the old par
@@ -41,7 +44,7 @@ ms_align <- function(ts,data,txlim,cctitle=NA,doplot=F, verbose=F){
     #set up a new plot window to show the alignment
     #dev.new()
     #set new par
-    par(mar=c(0.9,2.3,2.9,.3), mfrow = c(3,1), oma=c(5,0,2,0))
+    par(mar=c(4,4,0.5,0), mfrow = c(3,1), oma=c(0,0,0,0))
   }
 
 
@@ -62,11 +65,18 @@ ms_align <- function(ts,data,txlim,cctitle=NA,doplot=F, verbose=F){
   #Resample against xout.
   yii <- approx(x=data[,1], y=data[,2], xout=xout, method="linear", rule = 2)
   #renormalise this segment
-  yii$y = yii$y/max(yii$y)
+  #yii$y = yii$y/max(yii$y)
+
+  nmax = max(yii$y)
+  if(!is.na(normlim)){
+    nmax = max(nmax,normlim)
+  }
+
+  yii$y = (yii$y-min(yii$y))/(nmax-min(yii$y))
 
   #TODO: Pass this data out so we can plot it elsewhere
   if(doplot){
-    plot(yii,type="l",col="red")
+    plot(yii,type="l",col="red",xlab="Mass (Da)",ylab="Intensity")
   }
 
   #Now resample the theoretical data:
@@ -79,15 +89,23 @@ ms_align <- function(ts,data,txlim,cctitle=NA,doplot=F, verbose=F){
     yri$y[idx] <- ts$prob[i]
   }
 
+  #Apply gaussian smoothing if set
+  if(!is.na(gauss)){
+    yrii <- ksmooth(yri$x,yri$y,"normal",bandwidth = gauss)
+    yrii$y <- yrii$y / max(yrii$y)
+    yri$y <- yrii$y
+  }
+
+
   #TODO: Pass this data out so we can plot it elsewhere
   if(doplot){
     lines(yri)
-    title(sprintf("Data resampled to resolution %0.2f Da",myby), line = "-2")
+    title(sprintf("Data/model resampled to %0.2f Da",myby), line = "-2")
   }
 
   ######################################################################################
   #Now we can do the cross-correlation:                                 4*mylagmax
-  ccd <- ccf(yri$y,yii$y,ylim=c(-0.1,0.5),plot=doplot,axes=F, lag.max = mylagmax, main = "")
+  ccd <- ccf(yri$y,yii$y,ylim=ccylim,plot=doplot,axes=F, lag.max = mylagmax, main = "")
   #message(sprintf("Length yr = %d, len yi = %d",length(yr),length(yi)))
   #plot(yr,yi,type="l",ylim=c(0,max(1000,max(yi)))  )
 
@@ -152,7 +170,7 @@ ms_align <- function(ts,data,txlim,cctitle=NA,doplot=F, verbose=F){
     #plot the peaks from the sequence
     ba_plotseqpeaks(ts,txlim)
     #####plotseqpeaks(ocow,myxlim)
-  
+
     if(verbose)
       message(sprintf("Lag is %0.3f",res_max$lag*myby))
 
@@ -174,6 +192,8 @@ ms_align <- function(ts,data,txlim,cctitle=NA,doplot=F, verbose=F){
     lines(x=data[,1],    y = data[,2]/max(data[,2]),col="grey50")
     lines(x=data[,1]+res_max$lag*myby,y = data[,2]/max(data[,2]),col=mycol)
 
+    title("Alignment",line = -2)
+    
     #readline("hit <return> to close the plot window and carry on")
     #dev.off()
     #plot.new()
@@ -182,6 +202,10 @@ ms_align <- function(ts,data,txlim,cctitle=NA,doplot=F, verbose=F){
     #op
     #par(op)
   }
+  
+  
+  
+  mtext(text="Mass (Da)",side=1,line=2,outer=TRUE)
 
   return(out)
 

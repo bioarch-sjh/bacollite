@@ -2,6 +2,7 @@
 
 export(ba_gxy_probs)
 export(ba_nhyd)
+export(ba_plotseqpeaks)
 export(lag_plot)
 export(load.gpm)
 export(load.gpm.raw)
