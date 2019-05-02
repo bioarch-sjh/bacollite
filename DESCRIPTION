@@ -1,7 +1,7 @@
 Package: bacollite
 Type: Package
 Title: analysis of MALDI and LC-MS/MS spectral data using sequence data (mainly for collagen)
-Version: 0.1
+Version: 0.2
 Date: 2017-01-04
 Authors@R: c(
             person("Simon", "Hickinbotham", email = "sjh@palaeome.org", role = c("aut", "cre")),
@@ -16,7 +16,8 @@ Depends:
     stringr
 Imports:
     Rcpp
-Remotes: github::franticspider/bioarch/bioarch
+Remotes: github::bioarch-sjh
+URL: https://github.com/bioarch-sjh/bacollite
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown,
