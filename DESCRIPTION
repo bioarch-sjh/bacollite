@@ -9,14 +9,14 @@ Authors@R: c(
             person("Sarah", "Fiddyment", email = "sarah.fiddyment@york.ac.uk", role = c("ctb")),
             person("Matthew", "Collins", email = "matthew@palaeome.org", role = c("aut"))
             )
-Description: More about what it does (maybe more than one line)
+Description: analysis of MALDI and LC-MS/MS spectral data using sequence data (mainly for collagen)
 License: GPL-3
 LazyData: TRUE
 Depends: 
     stringr
 Imports:
     Rcpp
-Remotes: github::bioarch-sjh
+Remotes: github::bioarch-sjh/bacollite
 URL: https://github.com/bioarch-sjh/bacollite
 RoxygenNote: 6.0.1
 Suggests: knitr,
