@@ -2,9 +2,10 @@
 
 The bacollite package offers a set of tools for aligning MALDI spectrum data with 'theroretical' peak positions that have been calculated from sequence and chemistry data. The alignment is carried out by cross-corelation and yields a correlation score and a lag score, both of which can be used to determine the presence or absence of a peptide in the spectrum. 
 
-# Installation
+### Installation
 
 see `INSTALL.md` in this directory
+
 ----
 # Quickstart guide
 
@@ -12,12 +13,22 @@ see `INSTALL.md` in this directory
 
 To carry out a bacollite analysis, you will need:
 
-- A set of peptides OR a collagen sequence
+- A set of peptides OR a collagen sequence (some of these are provided in the package; see "Source Data" below)
 - A set of MALDI samples in text or Bruker format, preferably as triplicate samples
 
 The main options regarding input data involve generating appropriate peptides from sequences.
 
 ## Processing 
+
+- Initial processing is carried out by the `ms_align` function, which returns correlation and lag scores for each peptide and each sample.
+- The correlation and lag scores must then be further processed for classification
+
+## Classification / Interpretation
+
+A variety of approaches exist to carry out classification
+
+- Simple thresholding of correlation and/or lag scores can be used to determine whether a peptide has a 'hit' in the spectrum, which may be sufficient for some analyses
+- Alternatively, more sophisticated analysis has been developed with the package, curently the subject of a paper under review. 
 
 
 
