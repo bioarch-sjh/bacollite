@@ -36,7 +36,7 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #'   \item{ion2}{The proportion of total ions for this peptide in sample 2}
 #'   \item{ion3}{The proportion of total ions for this peptide in sample 3}
 #' @export
-ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccylim=c(-0.1,0.5)){
+ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,cctitle=NA,doplot=F, verbose=F,ccylim=c(-0.1,0.5)){
 
   if(doplot){
     #save the old par
@@ -44,7 +44,7 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
     #set up a new plot window to show the alignment
     #dev.new()
     #set new par
-    par(mar=c(0.9,2.3,2.9,.3), mfrow = c(3,1), oma=c(5,0,2,0))
+    par(mar=c(4,4,0.5,0), mfrow = c(3,1), oma=c(0,0,0,0))
   }
 
 
@@ -76,7 +76,7 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
 
   #TODO: Pass this data out so we can plot it elsewhere
   if(doplot){
-    plot(yii,type="l",col="red")
+    plot(yii,type="l",col="red",xlab="Mass (Da)",ylab="Intensity")
   }
 
   #Now resample the theoretical data:
@@ -100,7 +100,7 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
   #TODO: Pass this data out so we can plot it elsewhere
   if(doplot){
     lines(yri)
-    title(sprintf("Data resampled to resolution %0.2f Da",myby), line = "-2")
+    title(sprintf("Data/model resampled to %0.2f Da",myby), line = "-2")
   }
 
   ######################################################################################
@@ -129,8 +129,10 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
 
   res_lrmax = lagset[which.max(lagset$cor),]
 
-  td <- sprintf("Cross-Correlation\n max c=%.2f, at lag=%0.3f\n max inrange c = %.2f at lag %.3f",res_max$cor,res_max$lag*myby,res_lrmax$cor,res_lrmax$lag * myby)
-
+  if(is.na(cctitle)){
+    cctitle <- sprintf("Cross-Correlation\n max c=%.2f, at lag=%0.3f\n max inrange c = %.2f at lag %.3f",res_max$cor,res_max$lag*myby,res_lrmax$cor,res_lrmax$lag * myby)
+  }
+  
   if(verbose){
     message("\nComparing max correlation with within-range correlation:")
     message(sprintf("  cor = %0.2f, lag = %0.2f\nlrcor = %0.2f, lrlag = %0.2f\n",out$cor,out$lag,res_lrmax$cor,res_lrmax$lag * myby))
@@ -140,8 +142,8 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
 
     message(sprintf("There are %d points in the correlation from %0.2f to %0.2f (scaled to %0.2f to %0.2f)",nrow(res),res$lag[1],res$lag[nrow(res)],res$lag[1]*myby,res$lag[nrow(res)]*myby))
 
-    message(td)
-    #readline(sprintf("Hit <return> for %s",td))
+    message(cctitle)
+    #readline(sprintf("Hit <return> for %s",cctitle))
   }
 
   if(doplot){
@@ -152,11 +154,11 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
   labelvals = c(-1,-laglim,0,laglim,1)
 
   if(doplot){
-    title(td, line = "-2")
+    title(cctitle, line = "-2")
     #axis(1, at = c(-mylagmax/2,0,mylagmax/2), labels = c(-0.5,0,0.5))
     axis(1, at = mylagmax * labelvals, labels = labelvals)
     axis(2)
-    #text(0,-0.4,td)
+    #text(0,-0.4,cctitle)
   }
 
 
@@ -190,6 +192,8 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
     lines(x=data[,1],    y = data[,2]/max(data[,2]),col="grey50")
     lines(x=data[,1]+res_max$lag*myby,y = data[,2]/max(data[,2]),col=mycol)
 
+    title("Alignment",line = -2)
+    
     #readline("hit <return> to close the plot window and carry on")
     #dev.off()
     #plot.new()
@@ -198,6 +202,10 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,doplot=F, verbose=F,ccyli
     #op
     #par(op)
   }
+  
+  
+  
+  mtext(text="Mass (Da)",side=1,line=2,outer=TRUE)
 
   return(out)
 

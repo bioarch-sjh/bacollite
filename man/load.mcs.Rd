@@ -5,8 +5,8 @@
 \title{Load peptides from the mammalian collagen sequences googlesheet and use the proline hydroxylation
 probabilites contained in the sheet to estimate the probability of each number of hydroxyprolines in each peptide}
 \usage{
-load.mcs(spp = "human", sheet = bioarch_mammal_sequences, massmin = 800,
-  massmax = 3500, verbose = F)
+load.mcs(spp = "human", sheet = bioarch_mammal_sequences,
+  massmin = 800, massmax = 3500, verbose = F)
 }
 \arguments{
 \item{spp}{the name of the species whose peptides will be loaded.}
