@@ -21,5 +21,5 @@ Load mass spec data from a 2-column space-delimited text file
 \examples{
 froot  <- "~/tmp/bioarch_keri/20160909_Keri13/20160909_Keri13_0_"
 spots  <- c("G7","G10","G13")
-sample <- "C1"
+name <- "C1"
 }

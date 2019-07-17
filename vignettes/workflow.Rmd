@@ -1,0 +1,296 @@
+---
+title: "Typical bacollite workflows"
+author: "Simon Hickinbotham"
+date: "`r Sys.Date()`"
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+# Generating theoretical peptides from sequence data
+
+First, let's show how to parse sequence data into peptides. Bacollite comes with a file called `scg_seqs.txt` that we can use to demonstrate how to find peptides. The first ten lines of the file look like this:
+
+```
+COL1A1
+
+Cow        QLSYGYDEKSTGISVPGPMGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGP
+Sheep      QLSYGYDEKSTGISVPGPMGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGP
+GOAT       QLSYGYDEKSTGISVPGPMGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGP
+           ************************************************************
+
+Cow        PGPPGKNGDDGEAGKPGRPGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGP
+Sheep      PGPPGKNGDDGEAGKPGRPGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGP
+GOAT       PGPPGKNGDDGEAGKPGRPGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGP
+           ************************************************************
+```
+
+Let's now parse this file. Here's how we get the path of the file that comes with bacollite and store it in a variable called `fn`: 
+
+```{r}
+library(bacollite)
+fn <- system.file("extdata", "scg_seqs.txt", package = "bacollite")
+```
+
+
+Now we can use `read.table` to load the file data into a table, then name the two columns "spp" and "seq":
+
+```{r}
+csg <- read.table(fn,fill = T,blank.lines.skip = T,header=F,stringsAsFactors = F,quote = "")
+colnames(csg) <- c("spp","seq")
+```
+
+This isn't the easiest format to parse, but it's still better to do it automatically than by hand. We'll do the COL1A1 (Collagen 1) section of the file separately from COL1A2 (Collagen 2), so the first thing we need is the row number of COL1A2: 
+
+```{r}
+col1a2start <- which(csg$spp == "COL1A2")
+```
+
+The next step is to split the collagen 1 part of the table off, then collapse the lines for each species into one text. 
+
+```{r}
+csg1a1 <- csg[1:(col1a2start-1),]
+
+a1cow   <- paste0(csg1a1[csg1a1$spp == "Cow",2] , collapse="")
+a1sheep <- paste0(csg1a1[csg1a1$spp == "Sheep",2], collapse="")
+a1goat  <- paste0(csg1a1[csg1a1$spp == "GOAT",2], collapse="")
+```
+
+Let's have a look at a1sheep to confirm: 
+
+```{r}
+a1sheep
+```
+
+We can do the same for the collagen 2 part of the file:
+
+```{r}
+csg1a2 <- csg[col1a2start:nrow(csg),]
+
+a2cow   <- paste0(csg1a2[csg1a2$spp == "Cow",2] , collapse="")
+a2sheep <- paste0(csg1a2[csg1a2$spp == "Sheep",2], collapse="")
+a2goat  <- paste0(csg1a2[csg1a2$spp == "GoatCol1A2",2], collapse="")
+
+```
+
+
+Then we can use `parse.seq` in the bacollite package to get the peptides for each collagen. We'll add a column to the dataset to record which collagen the peptide is from like this: 
+
+```{r}
+require(bacollite,quietly=T)
+a1cow <- parse.seq(a1cow)
+a1sheep <- parse.seq(a1sheep)
+a1goat <- parse.seq(a1goat)
+
+a1cow$collagen <-1
+a1sheep$collagen <-1
+a1goat$collagen <-1
+```
+
+We can do the same for collagen 2 - note that we have to remove the insertion symbol `-` from the aligned collagen sequences before calling `parse.seq`:
+
+```{r}
+#Clean the '-' entries out...there's an insertion at the end of the goat sequence
+a2cow <- str_replace_all(a2cow,"-","")
+a2sheep <- str_replace_all(a2sheep,"-","")
+a2goat <- str_replace_all(a2goat,"-","")
+
+a2cow <- parse.seq(a2cow)
+a2sheep <- parse.seq(a2sheep)
+a2goat <- parse.seq(a2goat)
+
+a2cow$collagen <-2
+a2sheep$collagen <-2
+a2goat$collagen <-2
+```
+
+finally, we can adjust the `seqpos` value for collagen 2 so that peptides from collagen 1 and 2 don't get confused (this is common practice in bioarch). Then we can combine the data from the two collagens into a single data frame for each species: 
+
+```{r}
+#TODO: need to resolve the seq pos issue w.r.t collagen 2
+#Should change all the indexing to helixpos and *always* record the col1a1/col1a2 source
+#probably better to fix this for kristine's work
+#We have to shift the seqpos for collagen 2
+c2offset <- 1010
+a2cow$seqpos   <- a2cow$seqpos   + c2offset
+a2sheep$seqpos <- a2sheep$seqpos + c2offset
+a2goat$seqpos  <- a2goat$seqpos  + c2offset
+
+
+pepcow <- rbind(a1cow,a2cow)
+pepsheep <- rbind(a1sheep,a2sheep)
+pepgoat <- rbind(a1goat,a2goat)
+```
+
+
+## Peptide probabilities
+
+We've got peptides, and we've also got all the possible levels of hydroxylation that each peptide could have. However, we don't yet have an estimate of the *probability* of a particular level of hydroxylation. In the absence of direct evidence, bacollite has a function that can estimate different levels of hydroxylation based on the XY positions of the prolines in the sequence. Let's now calculate these probabilities and add them to a column in our peptide table
+
+
+```{r}
+seqset <- unique(pepsheep$seq)
+for(ii in 1:length(seqset)){
+  #message(sprintf("iteration %d, seq is %s",ii,seqset[ii]))
+  
+  #get the hprobs:
+  hp <- ba_gxy_probs(seqset[ii])#,xprob = 0.1, yprob = 0.9, xyxprob = 0.5, xyyprob = 1.0,verbose = F)
+  
+  #now add the probabilities to the right level of hydroxylation in the table: 
+  for(hh in 1:nrow(hp)){
+    pepsheep$prob[pepsheep$seq == seqset[ii] & pepsheep$ nhyd == hp$nhyd[hh]] = hp$prob[hh] 
+  }
+}
+```
+
+
+
+## Plot the theoretical peptides..
+
+To get an idea of the distribution of these masses, let's plot them, with the hydroxylation probability on the y-axis like this: 
+
+```{r}
+par(mfrow=c(1,1),mar=c(0,5,0,0)+0.1,oma = c(4,.0,.0,.0))
+
+plot(NA,xlab="Mass (Da)",ylab="Hydroxylation\nprobability",
+     #main = "Theoretical distribution of hydroxylation probabilities for sheep collagen peptides",
+     ylim=c(0,1),
+     xlim=c(800,3500),
+     axes = F)
+
+axis(side=2)
+axis(side=1)
+segments(x0=pepsheep$mass1[pepsheep$nhyd==0],y0=pepsheep$prob[pepsheep$nhyd==0],y1=0,col="red")
+segments(x0=pepsheep$mass1[pepsheep$nhyd==1],y0=pepsheep$prob[pepsheep$nhyd==1],y1=0,col="orange")
+segments(x0=pepsheep$mass1[pepsheep$nhyd==2],y0=pepsheep$prob[pepsheep$nhyd==2],y1=0,col="yellow")
+segments(x0=pepsheep$mass1[pepsheep$nhyd==3],y0=pepsheep$prob[pepsheep$nhyd==3],y1=0,col="green")
+segments(x0=pepsheep$mass1[pepsheep$nhyd>3],y0=pepsheep$prob[pepsheep$nhyd>3],y1=0,col="blue")
+legend("topright",
+       legend=c("0 hydroxylations","1 hydroxylation","2 hydroxylations","3 hydroxylations",">3 hydroxylations"),
+       lty = c(1,1,1,1,1),
+       col = c("red","orange","yellow","green","blue"),
+       cex = 0.7
+       )
+
+```
+
+Now we have a set of theoretical peptides from a sequence for each species, we can proceed to use them to build an automated classification in the next section.
+
+
+
+
+# Peptide differences
+
+Where species are closely related, they'll have a lot of peptides in common.  We can calculate the peptides that are different between two species using `spp.diffs`. Here, we create three tables for pair-wise differences between sheep and goat, sheep and calf, and cow and goat:  
+
+```{r}
+s.g.diffs <- spp.diffs(pepsheep,pepgoat,verbose=F)
+s.c.diffs <- spp.diffs(pepsheep,pepcow,verbose=F)
+c.g.diffs <- spp.diffs(pepcow,pepgoat,verbose=F)
+```
+
+
+# Generating descriminatory marker sets
+
+A *descriminatory marker set* is a set of markers that allow samples to be classified as belonging to one of a particular set of species. Whilst it was known that particular trypsin-cut peptides from collagen would be different between species, we needed the correlation technique and the mass information (including PTMs) to make an accurate alignment. 
+
+Looking at Sarah's list of masses and the peptide data above, we can see that there are three peptides that account for the differences between sheep cow and goat. The first two are found at sequence position 1997 and 1776, whereas the third is a peptide resulting from a missed cleave at sequence position 619 - we can generate the mass data for this peptide by concatenating the peptides at sequence positions 602 and 620
+
+ok - let's create these data structures so that aligning unknown spectra is easy. We'll take the peptide at 602 and concatenate the peptide at 620, then recalculate the mass etc. 
+
+```{r}
+require(stringr)
+dm_sheep <- pepsheep[
+              (pepsheep$seqpos == 1997 & pepsheep$nglut == 0 & (pepsheep$nhyd == 0 | pepsheep$nhyd == 1))
+              |
+              (pepsheep$seqpos == 1776 & pepsheep$nglut == 0 & (pepsheep$nhyd == 4 | pepsheep$nhyd == 5))
+              |
+              (pepsheep$seqpos == 602 & pepsheep$nglut == 0 & pepsheep$nhyd == 2)
+              ,
+              ]
+
+#Amend the sequence at pos 602:
+seqmc <- paste0(dm_sheep$seq[dm_sheep$seqpos == 602], pepsheep$seq[pepsheep$seqpos == 620 & 
+                                                                pepsheep$nhyd==0 & 
+                                                                pepsheep$nglut ==0])
+massmc <- ms_iso(seqmc,nhydroxylations = 2)
+dm_sheep$seq[dm_sheep$seqpos == 602] <- seqmc
+dm_sheep$mass1[dm_sheep$seqpos == 602] <- massmc$mass[1]
+dm_sheep <- dm_sheep[order(dm_sheep$mass1),]
+
+#GOAT
+dm_goat <- pepgoat[
+              (pepgoat$seqpos == 1997 & pepgoat$nglut == 0 & (pepgoat$nhyd == 0 | pepgoat$nhyd == 1))
+              |
+              (pepgoat$seqpos == 1776 & pepgoat$nglut == 0 & (pepgoat$nhyd == 4 | pepgoat$nhyd == 5))
+              |
+              (pepgoat$seqpos == 602 & pepgoat$nglut == 0 & pepgoat$nhyd == 2)
+              ,
+              ]
+#Amend the sequence at pos 602:
+seqmc <- paste0(dm_goat$seq[dm_goat$seqpos == 602], pepgoat$seq[pepgoat$seqpos == 620 & 
+                                                                pepgoat$nhyd==0 & 
+                                                                pepgoat$nglut ==0])
+massmc <- ms_iso(seqmc,nhydroxylations = 2)
+dm_goat$seq[dm_goat$seqpos == 602] <- seqmc
+dm_goat$mass1[dm_goat$seqpos == 602] <- massmc$mass[1]
+dm_goat <- dm_goat[order(dm_goat$mass1),]
+
+
+#COW
+dm_cow <- pepcow[
+              (pepcow$seqpos == 1997 & pepcow$nglut == 0 & (pepcow$nhyd == 0 | pepcow$nhyd == 1))
+              |
+              (pepcow$seqpos == 1776 & pepcow$nglut == 0 & (pepcow$nhyd == 4 | pepcow$nhyd == 5))
+              |
+              (pepcow$seqpos ==  602 & pepcow$nglut == 0 & pepcow$nhyd == 2)
+              ,
+              ]
+
+#Amend the sequence at pos 602:
+seqmc <- paste0(dm_cow$seq[dm_cow$seqpos == 602], pepcow$seq[pepcow$seqpos == 620 & 
+                                                                pepcow$nhyd==0 & 
+                                                                pepcow$nglut ==0])
+massmc <- ms_iso(seqmc,nhydroxylations = 2)
+dm_cow$seq[dm_cow$seqpos == 602] <- seqmc
+dm_cow$mass1[dm_cow$seqpos == 602] <- massmc$mass[1]
+dm_cow <- dm_cow[order(dm_cow$mass1),]
+
+```
+
+
+Ok, now we can do some alignments to descriminte sheep, cow and goat (We'll check the 'bovidae' markers as a final step, even though it might be better to do it first in practice)
+
+
+
+
+----
+
+# Aligning MALDI data with peptides
+
+First, we have to load the samples, and to do this we need a list of the lot names. Rather than type them all out, we can generate a list of numbers and then use that to generate a table of lot names like this: 
+
+```{r}
+nos <- c(1:88)
+gl_lots <- sprintf("BZ%02d", nos)
+```
+
+From now on, we'll focus on creating alignments for three replicates of one sample. 
+
+
+
+
+
+
+
+

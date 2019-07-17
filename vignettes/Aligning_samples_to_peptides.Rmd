@@ -1,0 +1,175 @@
+---
+title: "Aligning Sample To Peptides"
+author: "Simon Hickinbotham"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+# Introduction
+
+
+This tutorial will show you how to load three replicates of a sample from files and align them with some peptides. We'll show the basic process first, and then give some details about how you would go about 
+
+# How to load some data
+
+The bacollite package comes with some data files that we can use during this example, but we need some R code to find where they are on our system. First we need R to tell us the folder that the data is in: 
+
+```{r}
+fpath <- system.file("extdata",package="bacollite")
+```
+
+The files that we are looking for are:
+
+```
+20150326_SF_YG65_94_I11.txt  
+20150326_SF_YG65_94_I14.txt  
+20150326_SF_YG65_94_I17.txt
+```
+You can see that the last part of the file name before the "." is the spot reference, and there are three spots: `I11`, `I14` and `I17`. We need this information to use the `load.sample` function to load the three samples into R, like this: 
+
+```{r}
+library(bacollite)
+froot = sprintf("%s/20150326_SF_YG65_94_",fpath)
+samples <- load.sample(froot = froot,spots = c("I11","I14","I17"),fext=".txt")
+```
+
+
+
+
+
+
+
+
+
+# Load some peptides
+
+
+
+
+
+
+
+# Run the alignment
+
+
+
+
+
+
+
+
+# Perform a classification
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Sample data formats
+
+The example data files are tab-delimited text files with two coulmns. A small portion of one of them is shown here:
+
+```
+2019.60878627237	21
+2019.63791216278	16
+2019.66703826364	3
+2019.69616457538	2
+2019.72529109758	6
+2019.75441783023	5
+2019.78354477354	17
+```
+
+The first column is the *mass* and the second column is the *intensity* (i.e. the ion count) for the MALDI sample. 
+
+
+
+# Peptide files
+
+See the vignette
+
+
+# Processing entire datasets
+
+
+
+
+-----
+
+Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+
+- Never uses retina figures
+- Has a smaller default figure size
+- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+
+## Vignette Info
+
+Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
