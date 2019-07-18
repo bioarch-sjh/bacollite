@@ -3,6 +3,7 @@
 export(ba_gxy_probs)
 export(ba_nhyd)
 export(ba_plotseqpeaks)
+export(corlim_data)
 export(lag_plot)
 export(latest_message)
 export(load.gpm)

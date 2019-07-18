@@ -1,0 +1,248 @@
+---
+title: "Aligning Sample To Peptides"
+author: "Simon Hickinbotham"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Aligning Sample To Peptides}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+# Introduction
+
+
+This tutorial will show you how to load three replicates of a sample from files and align them with some peptides. We'll show the basic process first, and then give some details about how you would go about 
+
+The bacollite package comes with some data files that we can use during this tutorial, but we need some R code to find where they are on our system. Let's get R to tell us the folder that the data is in: 
+
+```{r}
+fpath <- system.file("extdata",package="bacollite")
+```
+
+We'll be using the `fpath` variable in what follows. With your own data, you would know where this is on your system and you'd do something like `fpath <- "c:\mydata\"`
+
+
+# How to load data
+
+The files that we are using are called:
+
+```
+20150326_SF_YG65_94_I11.txt  
+20150326_SF_YG65_94_I14.txt  
+20150326_SF_YG65_94_I17.txt
+```
+You can see that the last part of the file name before the "." is the spot reference, and there are three spots: `I11`, `I14` and `I17`. We need this information to use the `load.sample` function to load the three samples into R, like this: 
+
+```{r}
+library(bacollite)
+froot = sprintf("%s/20150326_SF_YG65_94_",fpath)
+sample <- load.sample(froot = froot,spots = c("I11","I14","I17"),name="folio 42")
+```
+
+Let's go through this line by line: 
+
+- `library(bacollite)` loads the package.
+- `froot = sprintf("%s/20150326_SF_YG65_94_",fpath)` creates the text that is common to the file path of all three samples, based on the `fpath` text string that we created above.
+- `sample <- load.sample(froot = froot,spots = c("I11","I14","I17"))` loads the data from the files into an R data object called `sample`. 
+
+Let's have a look at the structure of the `sample` object using R's `str` function: 
+
+
+```{r}
+str(sample)
+```
+
+This tells us that `sample` is a list of five pieces of data:
+
+- `name` - the name of the data. We called it "folio 42". Having names is useful when you are running lots of samples!
+- `spot` - the three spot codes for the three samples
+- `s1` - the sample data for the first file (`I11`)
+- `s2` - the sample data for the first file (`I14`)
+- `s3` - the sample data for the first file (`I17`)
+
+Each of the three sample data entries in the list is a data frame containing the MALDI spectrum data that we'll use for the analysis. 
+
+That's it for loading data. There are several additional options that you can use to load things like CSV files, or files with different extensions, which will be the subject of a future vignette
+
+# Load some peptides
+
+There are several sets of petide sequence that come with bacollite, but here we'll just use some simple ones to get started. The bacollite package comes with some sets of peptides that we can use to descriminate between samples from sheep, cow and goat, as described in paper [1] in the README file. lets have a look at these files. The peptides in `dm_sheep` look like this
+
+
+
+```{r}
+#dm_sheep
+```
+
+Those in `dm_goat` are: 
+
+```{r}
+dm_goat
+```
+
+
+...and those in `dm_cow` are: 
+
+```{r}
+#dm_cow
+```
+
+
+
+
+
+
+
+
+# Run the alignment
+
+OK, now we've got a sample and some peptides, we can do alignments, using the ms_fit function. Let's do this for the sheep markers first:
+
+```{r}
+sheep_fit <- ms_fit(peptides = dm_sheep,sample = sample,doplot = F,force=T,gauss = 0.2)
+```
+
+
+```{r}
+cow_fit <- ms_fit(peptides = dm_cow,sample = sample,doplot = F,force=T,gauss = 0.2)
+```
+
+
+```{r}
+goat_fit <- ms_fit(peptides = dm_goat,sample = sample,doplot = F,force=T,gauss = 0.2)
+```
+
+That's nice, but it's not very informative - even if we do `str(goat_fit)`. If we want to see nice plots of these, we can set the `doplot` option to `TRUE` and make a nice figure: 
+
+
+```{r fig.height=8, fig.width=12}
+par(mfrow=c(3,5))
+gauss <- 0.3
+sheep_fit <- ms_fit(peptides = dm_sheep,sample = sample,doplot = T,force=T,gauss = 0.2)
+cow_fit <- ms_fit(peptides = dm_cow,sample = sample,doplot = T,force=T,gauss = 0.2)
+goat_fit <- ms_fit(peptides = dm_goat,sample = sample,doplot = T,force=T,gauss = 0.2)
+```
+
+The information in these plots is as follows:
+- The x axis shows the mass range under consideration
+- The y axis is a scale from 0 to 1
+- Each sample is plotted with a coloured line *and* a grey line - aligned samples 1,2 and 3 are coloured red, green and blue respectively. There original (unshifted) mass positions are also indicated with a grey line. This is useful for *bad* alignments, because it becomes clear that 
+- The intensity of each sample is scaled by the highest peak in the same spectrum. This allows for a better comparison across many peptides, becuase you see clearly where peaks are small. 
+- The isotopic distribution of the target peptides is shown as a seris of five "pinheads". These are scaled by the relative value of the most common isotope. For lower masses, this is usually the first isotope but for higher masses it is usually the second. 
+- As much information as possible is placed in the title of each plot, but this can be overkill if you want to see mmultiple plots in one figure as shown above. 
+
+
+
+
+So now we have a set of correlation data for the sample with the peptide. The next step is to use this data to carry out a classification
+ 
+# Perform a classification
+
+We carry out a classification by passing the data objects we created with `ms_fit` into the classfier function `cor_id`. Let's write this as if it was a function first, then call it - that'll help us explain the process.
+
+First we need to create a list of correlation structures like this
+
+```{r}
+cordata <- list()
+cordata[[1]]<-sheep_fit
+cordata[[2]]<-cow_fit
+cordata[[3]]<-goat_fit
+corlab <- c("Sheep","Cow","Goat")
+```
+
+The reason we put this data into a list is because we don't know in advance how many species we are trying to distinguish between.
+If we have a list we can use a loop to iterate through every sample
+
+TODO: incorporate `corlim_data` function from ../bacollite_paper17/correlation_study.Rmd into bacollite
+TODO: 
+
+
+```{r}
+
+#Arguments
+cd <- cordata
+labs <- corlab
+
+#Function
+corlim = seq(0,1,0.05)
+scores <- vector(length = length(cd))
+scores[] <- 0
+laglim <- 0.6
+
+#massage the raw cordata into a form we can work with: 
+cld <- list()
+for(cc in 1:length(cd)){
+  cld[[cc]] <- corlim_data(cd[[cc]],laglim)
+}
+
+plot(x=corlim,y=cld[[2]]$nh,col="green")
+points(x=corlim,y=cld[[1]]$nh,col="red")
+points(x=corlim,y=cld[[3]]$nh,col="blue")
+
+```
+
+
+
+
+```{r}
+
+
+for(cc in 1:length(cld)){
+  scores[cc] <-0
+  for(ll in 1:length(corlim)){
+    
+    #find the max of the alternatives to the current spp
+    maxnh <- 0 
+    for(dd in 1:length(cld)){
+      if(dd != cc){
+          maxnh <- max(maxnh,cld[[dd]]$nh[ll])
+      }
+    }
+    
+    if(cld[[cc]]$nh[ll] > maxnh){
+      scores[cc] <- scores[cc] + (corlim[ll]*(cld[[cc]]$nh[ll]-maxnh))
+    }
+    
+    message(sprintf("ll = %f, maxnh = %d, scores[%d] = %f",ll,maxnh,cc,scores[cc]))
+  }
+}  
+
+```
+
+
+
+
+# Sample data formats
+
+The example data files are tab-delimited text files with two coulmns. A small portion of one of them is shown here:
+
+```
+2019.60878627237	21
+2019.63791216278	16
+2019.66703826364	3
+2019.69616457538	2
+2019.72529109758	6
+2019.75441783023	5
+2019.78354477354	17
+```
+
+The first column is the *mass* and the second column is the *intensity* (i.e. the ion count) for the MALDI sample. 
+
+
+
+# Peptide files
+
+See the vignette
+
+
+# Processing entire datasets
+

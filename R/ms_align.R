@@ -132,7 +132,7 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,cctitle=NA,doplot=F, verb
   if(is.na(cctitle)){
     cctitle <- sprintf("Cross-Correlation\n max c=%.2f, at lag=%0.3f\n max inrange c = %.2f at lag %.3f",res_max$cor,res_max$lag*myby,res_lrmax$cor,res_lrmax$lag * myby)
   }
-  
+
   if(verbose){
     message("\nComparing max correlation with within-range correlation:")
     message(sprintf("  cor = %0.2f, lag = %0.2f\nlrcor = %0.2f, lrlag = %0.2f\n",out$cor,out$lag,res_lrmax$cor,res_lrmax$lag * myby))
@@ -193,7 +193,7 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,cctitle=NA,doplot=F, verb
     lines(x=data[,1]+res_max$lag*myby,y = data[,2]/max(data[,2]),col=mycol)
 
     title("Alignment",line = -2)
-    
+
     #readline("hit <return> to close the plot window and carry on")
     #dev.off()
     #plot.new()
@@ -201,12 +201,12 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,cctitle=NA,doplot=F, verb
     #reset the par
     #op
     #par(op)
-  }
-  
-  
-  
-  mtext(text="Mass (Da)",side=1,line=2,outer=TRUE)
 
+
+
+    mtext(text="Mass (Da)",side=1,line=2,outer=TRUE)
+
+  }
   return(out)
 
 }
