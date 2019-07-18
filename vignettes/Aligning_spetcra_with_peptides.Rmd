@@ -1,0 +1,26 @@
+---
+title: "Aligning_spetcra_with_peptides"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Aligning_spetcra_with_peptides}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(bacollite)
+```
+
+This vignette will show you how to run a basic alignment of a sample with some peptides. 
+
+The first thing to do is load your data. The `bacollite` package comes with some sample data that we'll use for this tutorial. We'll do a worked example with that, but also indicate how to do this with your own files on the way. 
+
+
+
