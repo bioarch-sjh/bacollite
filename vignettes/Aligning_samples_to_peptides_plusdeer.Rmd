@@ -1,10 +1,10 @@
 ---
-title: "Aligning Sample To Peptides"
+title: "Aligning Sample To Peptides for sheep,cow,goat and deer"
 author: "Simon Hickinbotham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Aligning Sample To Peptides}
+  %\VignetteIndexEntry{Aligning Sample To Peptides for Sheep,Cow,Goat and Deer}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 # Introduction
 
 
-This tutorial will show you how to load three replicates of a sample from files and align them with some peptides. We'll show the basic process first, and then give some details about how you would go about 
+This tutorial will show you how to load three replicates of a sample from files and align them with some peptides. We'll show the basic process first, and then give some details about how you would go about classifying the spectra based on peptide information. 
 
 The bacollite package comes with some data files that we can use during this tutorial, but we need some R code to find where they are on our system. Let's get R to tell us the folder that the data is in: 
 
@@ -97,6 +97,100 @@ dm_goat
 ```
 
 
+## Generating deer peptides. 
+
+
+Here we have a concatenated sequence for deer collagen 1A1 and 1A2:
+
+```{r}
+deerseq <- "GPMGPSGPRGIPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGRPGERGPPGPQGARGIPGTAGIPGMKXXXGFSGIDGAKGDAGPAGPKGEPGSPGENGAPGQMGPRXXXXXXGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGPRGSEGPQGVRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGPQGPSGPPGPKGNSGEPGAPGSKGDTGAKGEPGPTGIQGPPGPAGEEGKRXXXGEPGPAGIPGPPGERXXXXXXGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGIPGAKGITGSPGSPGPDGKTGPPGPAGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGVPGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGIPGPAGPPGEAGKPGEQGVPGDIGAPGPSGARXXXXXXXXXGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGSQGAPGIQGMPGERGAAGIPGPKGDRGDAGPKGADGAPGKDGVRGITGPIGPPGPAGAPGDKGETGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKXXXXXXXXXGDAGPPGPAGPAGPPGPIGNVGAPGPKXXXGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGPAGKXXXXXXRGETGPAGRPGEVGPPGPPGPAGEKGAPGADGPAGAPGTPGPQGIAGQRGVVGIPGQRXXXGFPGIPGPSGEPGKQGPSGASGERGPPGPMGPPGIAGPPGESGREGAPGAEGSPGRDGSPGPKGDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPAGPIGPVGARGPAGPQGPRGDKGETGEQGDRXXXXXXGFSGIQGPPGPPGSPGEQGPSGASGPAGPRGPPGSAGTPGKDGINGIPGPIGPPGPRXXTGDAGPAGPPGPPGPPGPPGPPKGPMGIMGPRGPPGASGAPGPQGFQGPPGEPGEPGQTGPAGARXXXXXXXXAGEDGHPGKPGRPGERGVVGPQGARGFPGTPGIPGFKXXXGHNGIDGIKGQPGAPGVKGEPGAPGENGTPGQTGARXXXXXXGRVGAPGPAGARGSDGSVGPVGPAGPIGSAGPPGFPGAPGPKGEIGPVGNPGPAGPAGPRGEVGIPGISGPVGPPGNPGANGIPGAKGAAGIPGVAGAPGIPGPRGIPGPVGAAGATGARGIVGEPGPAGSKGESGNKGEPGAVGQPGPPGPSGEEGKRGSTGEIGPAGPPGPPGIRXXXXXXXXXXXXXXAGVMGPAGSRXXXXXXXXXGPNGDSGRPGEPGIMGPRGFPGSPGNIGPAGKEGPVGIPGIDGRPGPIGPAGARGEPGNIGFPGPKGPTGDPGKAGEKGHAGIAGARXXXXXXXXXXXXXXXXXXXXXXXXGEQGPAGPPGFQGIPGPAGTAGEAGKPGERGIPGEFGIPGPAGARXXXGPPGESGAAGPAGPIGSRGPSGPPGPDGNKGEPGVVGAPGTAGPSGPSGIPGERGAAGIPGGKGEKGETGIRXXXXXXXXXXXXGAPGAVGAPGPAGANGDRGEAGPAGPAGPAGPRXXXXXXGEVGPAGPNGFAGPAGAAGQPGAKGERXXXGPKGENGPVGPTGPVGAAGPSGPNGPPGPAGSRGDGGPPGATGFPGAAGRTGPPGPSGISGPPGPPGPAGKEGIRGPRGDQGPVGRTGETGASGPPGFAGEKGPSGEPGTAGPPGTPGPQGIIGPPGFIGIPGSRXXXGIPGVAGSVGEPGPIGIAGPPGARGPPGNVGNPGVNGAPGEAGRDGNPGNDGPPGRDGQPGHKGERGYPGNAGPVGTAGAPGPQGPVGPTGKHGNRGEPGPAGAVGPAGAVGPRGPSGPQGIRGDKGEPGDKGPRGIPGIKGHNGIQGIPGIAGHHGDQGAPGAVGPAGPRGPAGPSGPAGKDGRTGQPGAVGPAGIRGSQGSQGPAGPPGPPGPPGPPGPS"
+
+deerpep <- parse.seq(deerseq)
+```
+
+
+
+
+
+
+
+
+
+
+
+OK, that gives us a set of peptides. We can find the sequences by looking at the `seqpos` variable for the other species, and looking for a peptide in that vicinity. We want peptides that correspond to the positions in the collagen that we used in the sheep cow goat study: 
+
+
+```{r}
+require(knitr, quietly = T)
+kable(dm_sheep)
+```
+
+
+
+
+The sheep peptide with masses at 1180 and 1196 has a seqpos value of 1997, so let's list the deer peptides with a seqpos in a range around that value: 
+
+
+
+
+
+
+```{r}
+require(knitr, quietly = 0)
+dp1 <- deerpep[deerpep$seqpos>1992 & deerpep$seqpos<2002 & deerpep$nglut == 0 & (deerpep$nhyd == 1 | deerpep$nhyd == 2),]
+kable(dp1)
+```
+
+Great, it looks like we've found it, and the sequence is identical to sheep. 
+
+Let's repeat the procedure for the seqpos around 1776: 
+
+
+```{r}
+require(knitr, quietly = 0)
+dp2 <- deerpep[deerpep$seqpos>1771 & deerpep$seqpos<1781 & deerpep$nglut == 0 & (deerpep$nhyd == 4 | deerpep$nhyd == 5),]
+kable(dp2)
+```
+
+OK, the final peptide has a missed cleave, so it's a bit more tricky to create. First, let's find the peptide 
+
+
+```{r}
+require(knitr, quietly = 0)
+dp3a <- deerpep[deerpep$seqpos>550 & deerpep$seqpos<590 & deerpep$nglut == 0 & deerpep$nhyd ==1,]
+kable(dp3a)
+```
+
+
+
+
+```{r}
+require(knitr, quietly = 0)
+dp3b <- deerpep[deerpep$seqpos>590 & deerpep$seqpos<610 & deerpep$nglut == 0 & deerpep$nhyd == 1,]
+kable(dp3b)
+```
+
+OK, let's join these two peptides together like this: 
+
+```{r}
+dp3 <- dp3a
+dp3$seq[1] <- str_c(dp3a$seq[1],dp3b$seq[1])
+dp3$mass1[1] <- 2883.416491 #dp3a$mass1[1]+dp3b$mass1[1]
+dp3$nhyd[1] <- dp3a$nhyd[1]+dp3b$nhyd[1]
+kable(dp3)
+```
+
+
+Now we can make the set of deer peptides
+
+```{r}
+dm_deer <- rbind(dp1,dp3,dp2)
+kable(dm_deer)
+```
+
+
+
 
 
 
@@ -105,31 +199,26 @@ dm_goat
 
 # Run the alignment
 
-OK, now we've got a sample and some peptides, we can do alignments, using the ms_fit function. Let's do this for the sheep markers first:
+OK, now we've got a sample and some peptides, we can do alignments, using the ms_fit function. Let's do this for each set of markers:
 
 ```{r}
 sheep_fit <- ms_fit(peptides = dm_sheep,sample = sample,doplot = F,force=T,gauss = 0.2)
-```
-
-
-```{r}
 cow_fit <- ms_fit(peptides = dm_cow,sample = sample,doplot = F,force=T,gauss = 0.2)
-```
-
-
-```{r}
 goat_fit <- ms_fit(peptides = dm_goat,sample = sample,doplot = F,force=T,gauss = 0.2)
+deer_fit <- ms_fit(peptides = dm_deer,sample = sample,doplot = F,force=T,gauss = 0.2)
 ```
+
 
 That's nice, but it's not very informative - even if we do `str(goat_fit)`. If we want to see nice plots of these, we can set the `doplot` option to `TRUE` and make a nice figure: 
 
 
-```{r fig.height=6, fig.width=7}
-par(mfrow=c(3,5))
-gauss <- 0.3
+```{r fig.height=8, fig.width=7}
+par(mfrow=c(4,5))
+gauss <- 0.2
 sheep_fit <- ms_fit(peptides = dm_sheep,sample = sample,doplot = T,force=T,gauss = 0.2)
 cow_fit <- ms_fit(peptides = dm_cow,sample = sample,doplot = T,force=T,gauss = 0.2)
 goat_fit <- ms_fit(peptides = dm_goat,sample = sample,doplot = T,force=T,gauss = 0.2)
+deer_fit <- ms_fit(peptides = dm_deer,sample = sample,doplot = T,force=T,gauss = 0.2)
 ```
 
 The information in these plots is as follows:
@@ -156,14 +245,15 @@ cordata <- list()
 cordata[[1]]<-sheep_fit
 cordata[[2]]<-cow_fit
 cordata[[3]]<-goat_fit
-corlab <- c("Sheep","Cow","Goat")
+cordata[[4]]<-deer_fit
+corlab <- c("Sheep","Cow","Goat","Deer")
 ```
 
 The reason we put this data into a list is because we don't know in advance how many species we are trying to distinguish between.
 If we have a list we can use a loop to iterate through every sample
 
 
-```{r}
+```{r fig.height=8, fig.width=8}
 
 #Arguments
 cd <- cordata
@@ -184,15 +274,17 @@ for(cc in 1:length(cd)){
 plot(x=corlim,y=cld[[2]]$nh,col="green",xlab="Correlation Threshold",ylab = "hit count",ylim=c(0,15))
 points(x=corlim,y=cld[[1]]$nh,col="red")
 points(x=corlim,y=cld[[3]]$nh,col="blue")
+points(x=corlim,y=cld[[4]]$nh,col="black")
 
 
 
 lines(x=corlim,y=cld[[2]]$nh,col="green")
 lines(x=corlim,y=cld[[1]]$nh,col="red")
 lines(x=corlim,y=cld[[3]]$nh,col="blue")
+lines(x=corlim,y=cld[[4]]$nh,col="black")
 
 
-legend("topright",legend = c("sheep","cow","goat"),col=c("green","red","blue"),lty = 1,pch=1)
+legend("topright",legend = corlab,col=c("green","red","blue","black"),lty = 1,pch=1)
 ```
 
 This gives us a clear graphical representation of the correlation scores. The final step in the classification is to combine this data into a score for each candidate species ID. Scores are accumulated for each correlation threshold value. For each given value and 
@@ -219,40 +311,10 @@ for(cl in 1:length(corlim)){
 }
 
 for(ss in 1:length(cld)){
- message(sprintf("Score for species %d = %f",ss,sum(cld[[ss]]$cumscore)))
+ message(sprintf("Score for species %d (%s) = %f",ss,corlab[ss],sum(cld[[ss]]$cumscore)))
 }
 ```
 
-
-
-
-
-
-```{r}
-
-
-for(cc in 1:length(cld)){
-  scores[cc] <-0
-  for(ll in 1:length(corlim)){
-    
-    #find the max of the alternatives to the current spp
-    maxnh <- 0 
-    for(dd in 1:length(cld)){
-      if(dd != cc){
-          maxnh <- max(maxnh,cld[[dd]]$nh[ll])
-      }
-    }
-    
-    if(cld[[cc]]$nh[ll] > maxnh){
-      scores[cc] <- scores[cc] + (corlim[ll]*(cld[[cc]]$nh[ll]-maxnh))
-    }
-    
-    message(sprintf("ll = %f, maxnh = %d, scores[%d] = %f",ll,maxnh,cc,scores[cc]))
-  }
-}  
-
-```
-
-# Further reading
+...From this output, we can see that our sample is unambiguously classified as sheep by this method. 
 
 
