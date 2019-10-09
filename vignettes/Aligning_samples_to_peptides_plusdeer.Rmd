@@ -20,7 +20,17 @@ knitr::opts_chunk$set(
 # Introduction
 
 
-This tutorial will show you how to load three replicates of a sample from files and align them with some peptides. We'll show the basic process first, and then give some details about how you would go about classifying the spectra based on peptide information. 
+This tutorial will show you how to load three replicates of a sample from files and align them with some peptides. We'll show the basic process first, and then give some details about how you would go about classifying the spectra based on peptide information. To summarise, the process involves the following steps:
+
+- Load a MALDI dataset
+- Load some peptides for several species
+- Align the peptides with the MALDI data
+- Give a score to the species
+- Generate graphical representation of the scoring 
+
+# How to load data
+
+### Loading a reference data set
 
 The bacollite package comes with some data files that we can use during this tutorial, but we need some R code to find where they are on our system. Let's get R to tell us the folder that the data is in: 
 
@@ -28,21 +38,18 @@ The bacollite package comes with some data files that we can use during this tut
 fpath <- system.file("extdata",package="bacollite")
 ```
 
-We'll be using the `fpath` variable in what follows. With your own data, you would know where this is on your system and you'd do something like `fpath <- "c:\mydata\"`
+We'll be using the `fpath` variable in what follows. With your own data, you would know where the samples are on your file system and you'd do something like `fpath <- "c:\mydata\"`
 
-
-# How to load data
-
-The files that we are using are called:
+The MALDI data files that we are using are called:
 
 ```
 20150326_SF_YG65_94_I11.txt  
 20150326_SF_YG65_94_I14.txt  
 20150326_SF_YG65_94_I17.txt
 ```
-You can see that the last part of the file name before the "." is the spot reference, and there are three spots: `I11`, `I14` and `I17`. We need this information to use the `load.sample` function to load the three samples into R, like this: 
+You can see that the last part of the file name before the "`.txt`" is the spot reference, and there are three spots: `I11`, `I14` and `I17`. We need this information to use the `load.sample` function to load the three samples into R, like this: 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(bacollite)
 froot = sprintf("%s/20150326_SF_YG65_94_",fpath)
 sample <- load.sample(froot = froot,spots = c("I11","I14","I17"),name="folio 42")
@@ -52,9 +59,9 @@ Let's go through this line by line:
 
 - `library(bacollite)` loads the package.
 - `froot = sprintf("%s/20150326_SF_YG65_94_",fpath)` creates the text that is common to the file path of all three samples, based on the `fpath` text string that we created above.
-- `sample <- load.sample(froot = froot,spots = c("I11","I14","I17"))` loads the data from the files into an R data object called `sample`. 
+- `sample <- load.sample(froot = froot,spots = c("I11","I14","I17"),name="folio 42")  ` loads the data from the files into an R data object called `sample`. 
 
-Let's have a look at the structure of the `sample` object using R's `str` function: 
+Let's have a look at the structure of the `sample` object using R's `str` function - this will show you what the arguments mean: 
 
 
 ```{r}
@@ -66,59 +73,79 @@ This tells us that `sample` is a list of five pieces of data:
 - `name` - the name of the data. We called it "folio 42". Having names is useful when you are running lots of samples!
 - `spot` - the three spot codes for the three samples
 - `s1` - the sample data for the first file (`I11`)
-- `s2` - the sample data for the first file (`I14`)
-- `s3` - the sample data for the first file (`I17`)
+- `s2` - the sample data for the second file (`I14`)
+- `s3` - the sample data for the third file (`I17`)
 
 Each of the three sample data entries in the list is a data frame containing the MALDI spectrum data that we'll use for the analysis. 
 
-That's it for loading data. There are several additional options that you can use to load things like CSV files, or files with different extensions, which will be the subject of a future vignette
+That's it for loading data. There are several additional options that you can use to load things like CSV files, or files with different extensions, which will be the subject of a future vignette. 
 
-# Load some peptides
+# How to load some peptides
 
-There are several sets of petide sequence that come with bacollite, but here we'll just use some simple ones to get started. The bacollite package comes with some sets of peptides that we can use to descriminate between samples from sheep, cow and goat, as described in paper [1] in the README file. lets have a look at these files. The peptides in `dm_sheep` look like this
+There are several sets of petide sequence that come with bacollite, but here we'll just use some simple ones to demonstrate the process. The bacollite package comes with some sets of peptides that we can use to descriminate between samples from sheep, cow and goat, as described in paper [1] in the README file. lets have a look at these files. The peptides in `dm_sheep` are:
 
 
-
-```{r}
-#dm_sheep
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+require(knitr)
+kable(dm_sheep)
 ```
 
-Those in `dm_goat` are: 
+Those in `dm_cow` are: 
 
-```{r}
-dm_goat
+```{r echo=FALSE}
+kable(dm_cow)
 ```
 
 
-...and those in `dm_cow` are: 
+...and those in `dm_goat` are: 
 
-```{r}
-#dm_cow
+```{r echo=FALSE}
+kable(dm_goat)
 ```
 
 
 ## Generating deer peptides. 
 
+This section shows how you would add another species set of markers, using peptides with the same collagen position and hydroxylation level as the sheep/cow/goat peptides shown above. Here we have a concatenated sequence for deer collagen 1A1 and 1A2 (**todo: note where this sequence has come from**):
 
-Here we have a concatenated sequence for deer collagen 1A1 and 1A2:
+```
+GPMGPSGPRGIPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGRPGERGPPGPQGARGIPGTAGIPGMKXXXGFSGI
+DGAKGDAGPAGPKGEPGSPGENGAPGQMGPRXXXXXXGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGPRGSEGPQG
+VRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGPQGPSGPPGPKGNSGEPGAPGSKGDTGAKGEPGPTGIQGPPGPA
+GEEGKRXXXGEPGPAGIPGPPGERXXXXXXGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGIPGAKGITGSPGSPGPDGKTGPPGP
+AGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGVPGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGIPGPAGPPG
+EAGKPGEQGVPGDIGAPGPSGARXXXXXXXXXGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGSQGAPGIQGMPGERGAAGIPGPKGDRGDA
+GPKGADGAPGKDGVRGITGPIGPPGPAGAPGDKGETGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKXXXXXXXXXGDAGPPGP
+AGPAGPPGPIGNVGAPGPKXXXGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGPAGKXXXXXXRGETGPAGRPGEVGPPGPPGPAGEKGAPG
+ADGPAGAPGTPGPQGIAGQRGVVGIPGQRXXXGFPGIPGPSGEPGKQGPSGASGERGPPGPMGPPGIAGPPGESGREGAPGAEGSPGRDGSPGPK
+GDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPAGPIGPVGARGPAGPQGPRGDKGETGEQGDRXXXXXXGFSGIQGPPGPPGSPGE
+QGPSGASGPAGPRGPPGSAGTPGKDGINGIPGPIGPPGPRXXTGDAGPAGPPGPPGPPGPPGPPKGPMGIMGPRGPPGASGAPGPQGFQGPPGEP
+GEPGQTGPAGARXXXXXXXXAGEDGHPGKPGRPGERGVVGPQGARGFPGTPGIPGFKXXXGHNGIDGIKGQPGAPGVKGEPGAPGENGTPGQTGA
+RXXXXXXGRVGAPGPAGARGSDGSVGPVGPAGPIGSAGPPGFPGAPGPKGEIGPVGNPGPAGPAGPRGEVGIPGISGPVGPPGNPGANGIPGAKG
+AAGIPGVAGAPGIPGPRGIPGPVGAAGATGARGIVGEPGPAGSKGESGNKGEPGAVGQPGPPGPSGEEGKRGSTGEIGPAGPPGPPGIRXXXXXX
+XXXXXXXXAGVMGPAGSRXXXXXXXXXGPNGDSGRPGEPGIMGPRGFPGSPGNIGPAGKEGPVGIPGIDGRPGPIGPAGARGEPGNIGFPGPKGP
+TGDPGKAGEKGHAGIAGARXXXXXXXXXXXXXXXXXXXXXXXXGEQGPAGPPGFQGIPGPAGTAGEAGKPGERGIPGEFGIPGPAGARXXXGPPG
+ESGAAGPAGPIGSRGPSGPPGPDGNKGEPGVVGAPGTAGPSGPSGIPGERGAAGIPGGKGEKGETGIRXXXXXXXXXXXXGAPGAVGAPGPAGAN
+GDRGEAGPAGPAGPAGPRXXXXXXGEVGPAGPNGFAGPAGAAGQPGAKGERXXXGPKGENGPVGPTGPVGAAGPSGPNGPPGPAGSRGDGGPPGA
+TGFPGAAGRTGPPGPSGISGPPGPPGPAGKEGIRGPRGDQGPVGRTGETGASGPPGFAGEKGPSGEPGTAGPPGTPGPQGIIGPPGFIGIPGSRX
+XXGIPGVAGSVGEPGPIGIAGPPGARGPPGNVGNPGVNGAPGEAGRDGNPGNDGPPGRDGQPGHKGERGYPGNAGPVGTAGAPGPQGPVGPTGKH
+GNRGEPGPAGAVGPAGAVGPRGPSGPQGIRGDKGEPGDKGPRGIPGIKGHNGIQGIPGIAGHHGDQGAPGAVGPAGPRGPAGPSGPAGKDGRTGQ
+PGAVGPAGIRGSQGSQGPAGPPGPPGPPGPPGPS
+```
+
+We can load this sequence into an R variable like this: 
 
 ```{r}
 deerseq <- "GPMGPSGPRGIPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGRPGERGPPGPQGARGIPGTAGIPGMKXXXGFSGIDGAKGDAGPAGPKGEPGSPGENGAPGQMGPRXXXXXXGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGPRGSEGPQGVRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGPQGPSGPPGPKGNSGEPGAPGSKGDTGAKGEPGPTGIQGPPGPAGEEGKRXXXGEPGPAGIPGPPGERXXXXXXGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGIPGAKGITGSPGSPGPDGKTGPPGPAGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGVPGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGIPGPAGPPGEAGKPGEQGVPGDIGAPGPSGARXXXXXXXXXGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGSQGAPGIQGMPGERGAAGIPGPKGDRGDAGPKGADGAPGKDGVRGITGPIGPPGPAGAPGDKGETGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKXXXXXXXXXGDAGPPGPAGPAGPPGPIGNVGAPGPKXXXGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGPAGKXXXXXXRGETGPAGRPGEVGPPGPPGPAGEKGAPGADGPAGAPGTPGPQGIAGQRGVVGIPGQRXXXGFPGIPGPSGEPGKQGPSGASGERGPPGPMGPPGIAGPPGESGREGAPGAEGSPGRDGSPGPKGDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPAGPIGPVGARGPAGPQGPRGDKGETGEQGDRXXXXXXGFSGIQGPPGPPGSPGEQGPSGASGPAGPRGPPGSAGTPGKDGINGIPGPIGPPGPRXXTGDAGPAGPPGPPGPPGPPGPPKGPMGIMGPRGPPGASGAPGPQGFQGPPGEPGEPGQTGPAGARXXXXXXXXAGEDGHPGKPGRPGERGVVGPQGARGFPGTPGIPGFKXXXGHNGIDGIKGQPGAPGVKGEPGAPGENGTPGQTGARXXXXXXGRVGAPGPAGARGSDGSVGPVGPAGPIGSAGPPGFPGAPGPKGEIGPVGNPGPAGPAGPRGEVGIPGISGPVGPPGNPGANGIPGAKGAAGIPGVAGAPGIPGPRGIPGPVGAAGATGARGIVGEPGPAGSKGESGNKGEPGAVGQPGPPGPSGEEGKRGSTGEIGPAGPPGPPGIRXXXXXXXXXXXXXXAGVMGPAGSRXXXXXXXXXGPNGDSGRPGEPGIMGPRGFPGSPGNIGPAGKEGPVGIPGIDGRPGPIGPAGARGEPGNIGFPGPKGPTGDPGKAGEKGHAGIAGARXXXXXXXXXXXXXXXXXXXXXXXXGEQGPAGPPGFQGIPGPAGTAGEAGKPGERGIPGEFGIPGPAGARXXXGPPGESGAAGPAGPIGSRGPSGPPGPDGNKGEPGVVGAPGTAGPSGPSGIPGERGAAGIPGGKGEKGETGIRXXXXXXXXXXXXGAPGAVGAPGPAGANGDRGEAGPAGPAGPAGPRXXXXXXGEVGPAGPNGFAGPAGAAGQPGAKGERXXXGPKGENGPVGPTGPVGAAGPSGPNGPPGPAGSRGDGGPPGATGFPGAAGRTGPPGPSGISGPPGPPGPAGKEGIRGPRGDQGPVGRTGETGASGPPGFAGEKGPSGEPGTAGPPGTPGPQGIIGPPGFIGIPGSRXXXGIPGVAGSVGEPGPIGIAGPPGARGPPGNVGNPGVNGAPGEAGRDGNPGNDGPPGRDGQPGHKGERGYPGNAGPVGTAGAPGPQGPVGPTGKHGNRGEPGPAGAVGPAGAVGPRGPSGPQGIRGDKGEPGDKGPRGIPGIKGHNGIQGIPGIAGHHGDQGAPGAVGPAGPRGPAGPSGPAGKDGRTGQPGAVGPAGIRGSQGSQGPAGPPGPPGPPGPPGPS"
-
-deerpep <- parse.seq(deerseq)
 ```
 
+Then we can generate all the peptides we see if we digested the sequence with trypsin like this:
 
+```{r}
+deerpep <- parse.seq(deerseq,max.missed.cleaves = 1)
+```
 
-
-
-
-
-
-
-
-
-OK, that gives us a set of peptides. We can find the sequences by looking at the `seqpos` variable for the other species, and looking for a peptide in that vicinity. We want peptides that correspond to the positions in the collagen that we used in the sheep cow goat study: 
+Note here that we are generating all peptides with up to 1 missed cleave here. OK, that gives us a set of all peptides possible from Deer. We can find the sequences by looking at the `seqpos` variable for the other species, and looking for a peptide in that vicinity. We want peptides that correspond to the positions in the collagen that we used in the sheep cow goat study: 
 
 
 ```{r}
@@ -138,7 +165,7 @@ The sheep peptide with masses at 1180 and 1196 has a seqpos value of 1997, so le
 
 ```{r}
 require(knitr, quietly = 0)
-dp1 <- deerpep[deerpep$seqpos>1992 & deerpep$seqpos<2002 & deerpep$nglut == 0 & (deerpep$nhyd == 1 | deerpep$nhyd == 2),]
+dp1 <- deerpep[deerpep$seqpos>1992 & deerpep$seqpos<2002 & deerpep$nglut == 0 & (deerpep$nhyd == 0 | deerpep$nhyd == 1) & deerpep$missed.cleaves == 0,]
 kable(dp1)
 ```
 
@@ -149,40 +176,24 @@ Let's repeat the procedure for the seqpos around 1776:
 
 ```{r}
 require(knitr, quietly = 0)
-dp2 <- deerpep[deerpep$seqpos>1771 & deerpep$seqpos<1781 & deerpep$nglut == 0 & (deerpep$nhyd == 4 | deerpep$nhyd == 5),]
+dp2 <- deerpep[deerpep$seqpos>1771 & deerpep$seqpos<1781 & deerpep$nglut == 0 & (deerpep$nhyd == 4 | deerpep$nhyd == 5) & deerpep$missed.cleaves == 0,]
 kable(dp2)
 ```
 
 OK, the final peptide has a missed cleave, so it's a bit more tricky to create. First, let's find the peptide 
 
 
-```{r}
-require(knitr, quietly = 0)
-dp3a <- deerpep[deerpep$seqpos>550 & deerpep$seqpos<590 & deerpep$nglut == 0 & deerpep$nhyd ==1,]
-kable(dp3a)
-```
-
-
-
 
 ```{r}
 require(knitr, quietly = 0)
-dp3b <- deerpep[deerpep$seqpos>590 & deerpep$seqpos<610 & deerpep$nglut == 0 & deerpep$nhyd == 1,]
-kable(dp3b)
-```
-
-OK, let's join these two peptides together like this: 
-
-```{r}
-dp3 <- dp3a
-dp3$seq[1] <- str_c(dp3a$seq[1],dp3b$seq[1])
-dp3$mass1[1] <- 2883.416491 #dp3a$mass1[1]+dp3b$mass1[1]
-dp3$nhyd[1] <- dp3a$nhyd[1]+dp3b$nhyd[1]
+dp3 <- deerpep[deerpep$seqpos>585 & deerpep$seqpos<595 & deerpep$nglut == 0 & (deerpep$nhyd == 2) & deerpep$missed.cleaves == 1,]
 kable(dp3)
 ```
 
 
-Now we can make the set of deer peptides
+
+
+Now we can make the set of deer peptides (note we are putting them in the same order as the sheep peptides at this point)
 
 ```{r}
 dm_deer <- rbind(dp1,dp3,dp2)
@@ -203,9 +214,9 @@ OK, now we've got a sample and some peptides, we can do alignments, using the ms
 
 ```{r}
 sheep_fit <- ms_fit(peptides = dm_sheep,sample = sample,doplot = F,force=T,gauss = 0.2)
-cow_fit <- ms_fit(peptides = dm_cow,sample = sample,doplot = F,force=T,gauss = 0.2)
-goat_fit <- ms_fit(peptides = dm_goat,sample = sample,doplot = F,force=T,gauss = 0.2)
-deer_fit <- ms_fit(peptides = dm_deer,sample = sample,doplot = F,force=T,gauss = 0.2)
+cow_fit   <- ms_fit(peptides = dm_cow,  sample = sample,doplot = F,force=T,gauss = 0.2)
+goat_fit  <- ms_fit(peptides = dm_goat, sample = sample,doplot = F,force=T,gauss = 0.2)
+deer_fit  <- ms_fit(peptides = dm_deer, sample = sample,doplot = F,force=T,gauss = 0.2)
 ```
 
 
@@ -215,10 +226,10 @@ That's nice, but it's not very informative - even if we do `str(goat_fit)`. If w
 ```{r fig.height=8, fig.width=7}
 par(mfrow=c(4,5))
 gauss <- 0.2
-sheep_fit <- ms_fit(peptides = dm_sheep,sample = sample,doplot = T,force=T,gauss = 0.2)
-cow_fit <- ms_fit(peptides = dm_cow,sample = sample,doplot = T,force=T,gauss = 0.2)
-goat_fit <- ms_fit(peptides = dm_goat,sample = sample,doplot = T,force=T,gauss = 0.2)
-deer_fit <- ms_fit(peptides = dm_deer,sample = sample,doplot = T,force=T,gauss = 0.2)
+sheep_fit <- ms_fit(peptides = dm_sheep, sample = sample,doplot = T,force=T,gauss = 0.2)
+cow_fit   <- ms_fit(peptides = dm_cow,   sample = sample,doplot = T,force=T,gauss = 0.2)
+goat_fit  <- ms_fit(peptides = dm_goat,  sample = sample,doplot = T,force=T,gauss = 0.2)
+deer_fit  <- ms_fit(peptides = dm_deer,  sample = sample,doplot = T,force=T,gauss = 0.2)
 ```
 
 The information in these plots is as follows:
@@ -230,15 +241,13 @@ The information in these plots is as follows:
 - As much information as possible is placed in the title of each plot, but this can be overkill if you want to see mmultiple plots in one figure as shown above. 
 
 
-
-
-So now we have a set of correlation data for the sample with the peptide. The next step is to use this data to carry out a classification
+At this point, we have a set of correlation data for each replicate sample with the peptides for each species. The next step is to use this data to carry out a classification of the sample. 
  
 # Perform a classification
 
 We carry out a classification by passing the data objects we created with `ms_fit` into the classfier function `cor_id`. Let's write this as if it was a function first, then call it - that'll help us explain the process.
 
-First we need to create a list of correlation structures like this
+First we need to create a list of the alignments, and a vector of names for the species ID like this: 
 
 ```{r}
 cordata <- list()
@@ -249,11 +258,17 @@ cordata[[4]]<-deer_fit
 corlab <- c("Sheep","Cow","Goat","Deer")
 ```
 
-The reason we put this data into a list is because we don't know in advance how many species we are trying to distinguish between.
-If we have a list we can use a loop to iterate through every sample
+The reason we put this data into a list is because it makes it easier to process each species in turn using the same code. If we have a list we can use a loop to iterate through every sample. 
+
+```{r include=FALSE}
+#remove objects created by previous runs so we can illustrate the process using str()
+rm(cld)
+```
 
 
-```{r fig.height=8, fig.width=8}
+The first stage in the classification is to determine whether a correlation between a sample and a peptide is a 'hit'. Rather than use a single threshold on the correlation, we use a range of thresholds (stored in the variable `corlim` below) and see if each alignment is above each value in that range. The code below organises this process: 
+
+```{r}
 
 #Arguments
 cd <- cordata
@@ -271,23 +286,18 @@ for(cc in 1:length(cd)){
   cld[[cc]] <- corlim_data(cd[[cc]],laglim)
 }
 
-plot(x=corlim,y=cld[[2]]$nh,col="green",xlab="Correlation Threshold",ylab = "hit count",ylim=c(0,15))
-points(x=corlim,y=cld[[1]]$nh,col="red")
-points(x=corlim,y=cld[[3]]$nh,col="blue")
-points(x=corlim,y=cld[[4]]$nh,col="black")
-
-
-
-lines(x=corlim,y=cld[[2]]$nh,col="green")
-lines(x=corlim,y=cld[[1]]$nh,col="red")
-lines(x=corlim,y=cld[[3]]$nh,col="blue")
-lines(x=corlim,y=cld[[4]]$nh,col="black")
-
-
-legend("topright",legend = corlab,col=c("green","red","blue","black"),lty = 1,pch=1)
 ```
 
-This gives us a clear graphical representation of the correlation scores. The final step in the classification is to combine this data into a score for each candidate species ID. Scores are accumulated for each correlation threshold value. For each given value and 
+We can look at the structure of the `cld` object, which gives us an idea of what the code above achieves: 
+
+```{r}
+str(cld)
+```
+
+As you can see, we have a list of four data frames, one for each species. Each data frame has a set of values for each correleation threshold under consideration. The `nh` values give the number of hits for each threshold, and the `sc` value is the sum of the ion counts for the peaks that are classed as a hit (we won't be using this variable for this analysis).
+
+
+The main part of  the classification is to combine this data into a score for each candidate species ID. Scores are accumulated for each correlation threshold value. For each given value and number of 'hits' 
 
 ```{r}
 #initialise the scores for each sample
@@ -300,7 +310,7 @@ for(cl in 1:length(corlim)){
     maxonh<-0
     for(tt in 1:length(cld)){
       if(ss != tt){
-        maxonh <- max(maxonh,cld[[tt]]$nh)
+        maxonh <- max(maxonh,cld[[tt]]$nh[cl])
       }
     }
     
@@ -309,12 +319,56 @@ for(cl in 1:length(corlim)){
     }
   }
 }
+```
+
+
+With these values to hand, we can create a structure to hold the result:
+
+```{r}
+
+result <- data.frame("id" = corlab, "score" = 0)
 
 for(ss in 1:length(cld)){
- message(sprintf("Score for species %d (%s) = %f",ss,corlab[ss],sum(cld[[ss]]$cumscore)))
+  message(sprintf("Score for species %d (%s) = %f" ,ss,corlab[ss],sum(cld[[ss]]$cumscore)))
+  result$score[ss] <- sum(cld[[ss]]$cumscore)
 }
 ```
 
-...From this output, we can see that our sample is unambiguously classified as sheep by this method. 
+
+This gives a score fore each species. In this case, the sample is unambiguously classified as cow. Sometimes, where a sample is noisy or contaminated, there can be non-zero scores for more than one species. *This is useful*, as it gives us an indication as to whether the automated classification is particularly strong or not. 
+
+The final stage in the analysis is to generate a graphical representation of the scoring process. Let's create that, and then discuss its features
+
+```{r fig.height=7, fig.width=7}
+title = sprintf("Sample '%s': manual ID: '%s'; Calc ID: '%s'\nscores ",sample$name,"unknown",result$id[result$score == max(result$score)])
+
+for(ss in 1:nrow(result)){
+  title = sprintf("%s %s = %0.3f",title,result$id[ss],result$score[ss])
+}
+
+par(mar = c(4,4,5,4))
+plot(NA,xlab="Correlation Threshold",ylab = "Number of Hits",ylim=c(0,15),xlim = c(0,1), main = title)
+
+points(x=corlim,y=cld[[1]]$nh,col="green")
+points(x=corlim,y=cld[[2]]$nh,col="red")
+points(x=corlim,y=cld[[3]]$nh,col="blue")
+points(x=corlim,y=cld[[4]]$nh,col="black")
+
+lines(x=corlim,y=cld[[1]]$nh,col="green")
+lines(x=corlim,y=cld[[2]]$nh,col="red")
+lines(x=corlim,y=cld[[3]]$nh,col="blue")
+lines(x=corlim,y=cld[[4]]$nh,col="black")
+
+
+legend("topright",legend = corlab,col=c("green","red","blue","black"),lty = 1,pch=1)
+```
+
+This gives us a clear graphical representation of the correlation scores. Let's make some observations about this plot: 
+
+- There are five peptides for each species and three replicates, so the maximum number of hits a sample can score is `3 x 5 = 15`. 
+- Note that we have set a limit on the amount of permissable lag in the alignment between observed and theoretical peaks to 0.6 Da. This is why the number of hits when the correlation threshold is zero is not 15. 
+- Cow has hits for 14 of the 15 peptides up to a correlation threshold of 0.7, so this is a pretty straightforward classification.
+- Sheep has six peptides in common with cow - which is why the number of hits stays level at 5 to the same classification threshold. 
+- By contrast, goat and deer have *no* peptides in common with cow, so the number of hits diminishes with lower correlation thresholds. 
 
 
