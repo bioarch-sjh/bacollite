@@ -11,7 +11,7 @@
 #' @param laglim maximum acceptable value of lag for each correlation
 #' @keywords bruker
 #' @export
-corlim_plot <- function(psample,pnpep,pcld,presult,pnames,manname="unknown",pcols=c("green","red","blue","black"),warn=T){
+corlim_plot <- function(psample,sarea="",pnpep,pcld,presult,pnames,manname="unknown",pcols=c("red","blue","green","black"),warn=T){
 
 
   calcid = presult$id[presult$score == max(presult$score)]
@@ -19,7 +19,7 @@ corlim_plot <- function(psample,pnpep,pcld,presult,pnames,manname="unknown",pcol
     calcid = "unknown"
 
 
-  title = sprintf("Sample '%s': manual ID: '%s'; Calc ID: '%s'\nscores ",psample$name,manname,calcid)
+  title = sprintf("Sample '%s' %s\nmanual ID: '%s'; Calc ID: '%s'\nscores ",psample$name,sarea,manname,calcid)
 
   for(ss in 1:nrow(result)){
     title = sprintf("%s %s = %0.3f",title,presult$id[ss],presult$score[ss])
@@ -43,6 +43,6 @@ corlim_plot <- function(psample,pnpep,pcld,presult,pnames,manname="unknown",pcol
 
   }
 
-  legend("topright",legend = corlab,col=c("green","red","blue","black"),lty = 1,pch=1)
+  legend("topright",legend = corlab,col=pcols,lty = 1,pch=1)
 
 }
