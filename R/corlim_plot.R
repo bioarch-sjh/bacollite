@@ -11,7 +11,7 @@
 #' @param laglim maximum acceptable value of lag for each correlation
 #' @keywords bruker
 #' @export
-corlim_plot <- function(psample,sarea="",pnpep,pcld,presult,pnames,manname="unknown",pcols=c("red","blue","green","black"),warn=T){
+corlim_plot <- function(psample,sarea="",pnpep,pcld,presult,pnames,manname="unknown",pcols=c("#e2ba5e","#3597c6","#e3645f","#793787"),warn=T){
 
 
   calcid = presult$id[presult$score == max(presult$score)]
