@@ -5,8 +5,14 @@
 \title{Calculate the 'GXY' frame of a peptide, and use probabilities of hdroxylation for prolines at different positions
 to estimate the probability of every possible level of hydroxylation}
 \usage{
-ba_gxy_probs(seq, xprob = 0.05, yprob = 0.95, xyxprob = 0.5,
-  xyyprob = 0.99, verbose = F)
+ba_gxy_probs(
+  seq,
+  xprob = 0.05,
+  yprob = 0.95,
+  xyxprob = 0.5,
+  xyyprob = 0.99,
+  verbose = F
+)
 }
 \arguments{
 \item{seq}{a peptide sequence}

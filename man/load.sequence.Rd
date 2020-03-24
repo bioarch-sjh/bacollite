@@ -4,8 +4,12 @@
 \alias{load.sequence}
 \title{Load sequences from the mammalian collagen sequences googlesheet}
 \usage{
-load.sequence(spp = "human", sheet = bioarch_mammal_sequences,
-  verbose = F, col3 = F)
+load.sequence(
+  spp = "human",
+  sheet = bioarch_mammal_sequences,
+  verbose = F,
+  col3 = F
+)
 }
 \arguments{
 \item{sheet}{the spreadsheet to load the data from. Must be the same format as bioarch_mammal_sequences}

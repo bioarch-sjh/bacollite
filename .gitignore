@@ -1,6 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
+.RData*
 inst/doc
 *~
 hpf.pdf

@@ -4,8 +4,17 @@
 \alias{corlim_plot}
 \title{get the hits for a range of correlation limit values}
 \usage{
-corlim_plot(psample, pnpep, pcld, presult, pnames, manname = "unknown",
-  pcols = c("green", "red", "blue", "black"), warn = T)
+corlim_plot(
+  psample,
+  sarea = "",
+  pnpep,
+  pcld,
+  presult,
+  pnames,
+  manname = "unknown",
+  pcols = c("#e2ba5e", "#3597c6", "#e3645f", "#793787"),
+  warn = T
+)
 }
 \arguments{
 \item{cd}{list of outputs from the ms_fit function for a set of peptides}

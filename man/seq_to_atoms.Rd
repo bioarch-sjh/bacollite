@@ -5,8 +5,7 @@
 \title{Calculate the atoms in an amino acid sequence
 post-translation modifications (deamidation and hydroxylation)}
 \usage{
-seq_to_atoms(sequence, ndeamidations = 0, nhydroxylations = 0,
-  verbose = F)
+seq_to_atoms(sequence, ndeamidations = 0, nhydroxylations = 0, verbose = F)
 }
 \arguments{
 \item{ndeamidations}{the number of deamidations}

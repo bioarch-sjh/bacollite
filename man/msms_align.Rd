@@ -4,8 +4,16 @@
 \alias{msms_align}
 \title{Locally align a pair of  mass specs}
 \usage{
-msms_align(data1, data2, mass, alim = c(-1, 6), laglim = 0.3, by = 0.005,
-  doplot = T, verbose = T)
+msms_align(
+  data1,
+  data2,
+  mass,
+  alim = c(-1, 6),
+  laglim = 0.3,
+  by = 0.005,
+  doplot = T,
+  verbose = T
+)
 }
 \arguments{
 \item{data1}{the first MS}

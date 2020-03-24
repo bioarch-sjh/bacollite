@@ -18,7 +18,7 @@ Imports:
     Rcpp
 Remotes: github::bioarch-sjh/bacollite
 URL: https://github.com/bioarch-sjh/bacollite
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Suggests: knitr,
     rmarkdown,
     testthat

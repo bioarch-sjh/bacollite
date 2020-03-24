@@ -4,8 +4,17 @@
 \alias{ms_align}
 \title{Align a theoretical peptide with a mass spec}
 \usage{
-ms_align(ts, data, txlim, gauss = NA, normlim = NA, cctitle = NA,
-  doplot = F, verbose = F, ccylim = c(-0.1, 0.5))
+ms_align(
+  ts,
+  data,
+  txlim,
+  gauss = NA,
+  normlim = NA,
+  cctitle = NA,
+  doplot = F,
+  verbose = F,
+  ccylim = c(-0.1, 0.5)
+)
 }
 \arguments{
 \item{ts}{theoretical spectrum peaks for a particular peptide}
