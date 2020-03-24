@@ -28,9 +28,12 @@ DOI	10.1093/bioinformatics/btaa181
 Pubmed ID 32176274  
 https://t.co/13DKasOLQe
 
+The analysis in the above paper was carried out using version 1.0.0 of this software
+
 ## Publications using bacollite
 
 Richter, Kristine Korzow and McGrath, Krista and Masson-MacLean, Edouard and Hickinbotham, Simon and Tedder, Andrew and Britton, Kate and Bottomley, Zoe and Dobney, Keith and Hulme-Beaman, Ardern and Zona, Margherita et al (2020) **What's the catch? Archaeological application of rapid collagen-based species identification for Pacific Salmon** *Journal of Archaeological Science* **116**:105116, 2020. 
 
+The analysis in the above paper was carried out using version 0.0.2 of this software
 
 
