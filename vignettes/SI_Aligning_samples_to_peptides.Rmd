@@ -1,10 +1,10 @@
 ---
-title: "Aligning Sample To Peptides for sheep,cow,goat and deer"
+title: "Aligning Samples To Peptides for Sheep, Cow, Goat and Deer"
 author: "Simon Hickinbotham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Aligning Sample To Peptides for Sheep,Cow,Goat and Deer}
+  %\VignetteIndexEntry{Aligning Sample To Peptides for Sheep, Cow, Goat and Deer}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
