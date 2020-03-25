@@ -15,7 +15,6 @@ Obtain the isotope distribution for a molecule consisting of atoms of C,H,N,O an
 post-translation modifications (deamitation and hydroxylation)
 }
 \examples{
-ms_iso_atom(atoms)
 ms_iso_atom(c(47,69,15,12,0))
 }
 \keyword{deamidation}

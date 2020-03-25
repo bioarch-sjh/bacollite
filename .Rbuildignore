@@ -3,3 +3,6 @@
 ^data-raw$
 ^doc$
 ^Meta$
+
+^.httr-oauth
+^withoutR

@@ -12,6 +12,3 @@ ts_index(sheet, spp, verbose = F)
 \description{
 Get the species index in the mammalian_collagen_sequences sheet
 }
-\examples{
-hcd <- ts_index(sheet,"human")
-}

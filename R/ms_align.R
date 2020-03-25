@@ -25,6 +25,8 @@ ms_offset_peaklineplot <- function(ms,offset,mycol){
 #' @param doplot whether to generate a plot of the alignment
 #' @param verbose whether to write messages whilst processing
 #' @param ccylim range of y axis in cross-correlation plot (defaults to [-0.1,0.5])
+#' @param stats approx ccf ksmooth lm predict
+#' @importFrom stats approx ccf ksmooth lm predict
 #' @return a dataframe holding the following fields:
 #'   \item{lag1}{The lag for sample 1}
 #'   \item{lag2}{The lag for sample 2}

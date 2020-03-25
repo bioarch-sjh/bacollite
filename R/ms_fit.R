@@ -12,6 +12,7 @@
 #' @param gauss the level of gaussian smoothing. defaults to NA (no smoothing)
 #' @param ionlim the fraction of the highest intensity that is used to calculate the scaling limit for ms_align
 #' @param ignore_warnings whether to ignore the check for the input and calculated mass
+#' @importFrom graphics axis legend lines mtext par plot points segments text title
 #' @return a dataframe holding the following fields:
 #'   \item{hit}{Whether a match was found for this peptide}
 #'   \item{lag1}{The lag for sample 1}

@@ -32,6 +32,8 @@ ms_align(
 \item{verbose}{whether to write messages whilst processing}
 
 \item{ccylim}{range of y axis in cross-correlation plot (defaults to [-0.1,0.5])}
+
+\item{stats}{approx ccf ksmooth lm predict}
 }
 \value{
 a dataframe holding the following fields:

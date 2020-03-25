@@ -17,11 +17,3 @@ aa_seq_to_atoms <- function(cvseq) {
     .Call('_bacollite_aa_seq_to_atoms', PACKAGE = 'bacollite', cvseq)
 }
 
-#' Multiply a number by two
-#'
-#' @param x the number that you want to multiply by 2
-#' @export
-timesTwo <- function(x) {
-    .Call('_bacollite_timesTwo', PACKAGE = 'bacollite', x)
-}
-

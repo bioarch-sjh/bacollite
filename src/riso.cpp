@@ -516,9 +516,11 @@ float R_iso (PEPTIDE *pep, int numpep, ISODIST *dist, int check)
 
 #ifdef DEBUG_R
       printf("calculated mass %f\n", imass);
-#endif
+      //TODO: make this check work without printf for R
       if(check)
         if (fabs(imass-pep[i].pepmass) > 1.5) printf("ERROR: SOMETHING IS WRONG HERE, THE DIFERENCE BETWEEN THE GIVEN AND CALCULATED MASSES IS %d\n", (int)(fabs(imass-pep[i].pepmass)+0.5));
+
+#endif
     }
   }
 
@@ -541,13 +543,15 @@ void R_loadIsotopeTable(/*char *filename,*/ ISOTAB *element, const int num, cons
 
 #ifdef DEBUG_R
   printf("Loading iso table\n");fflush(stdout);
-#endif
 
-
+  //TODO: make these checks elsewhere so that R can do them
   if(num != 5)
     printf("WARNING! Number of elements is not 5 - defaults won't work!\n");
   if(numiso != 5)
     printf("WARNING! Number of isotopes is not 5 - defaults won't work!\n");
+
+#endif
+
 
   //char name[1024];
   //double ftmp, ftmp1;
@@ -1378,13 +1382,13 @@ void R_iso_atom_p(int * atomcount, double *resultmass, double *resultprob, int *
 
 #ifdef DEBUG_R
       printf("calculated mass %f\n", imass);
-#endif
 	if(check){
 		//if (fabs(imass-pep[i].pepmass) > 1.5) {
 		//	printf("ERROR: SOMETHING IS WRONG HERE, THE DIFERENCE BETWEEN THE GIVEN AND CALCULATED MASSES IS %d\n", (int)(fabs(imass-pep[i].pepmass)+0.5));
 		//}
 		printf("Unable to check mass - this can be done using R_iso_seq() if your molecule is a peptide\n");
 	}
+#endif
 
 	//Add one for the charge
 	imass = imass + 1;

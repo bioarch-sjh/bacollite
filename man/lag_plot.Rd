@@ -21,6 +21,3 @@ lag_plot(
 \description{
 Plot the lag correction and fit a line to it for a peptide sample
 }
-\examples{
-lag_plot(markers,hits)
-}

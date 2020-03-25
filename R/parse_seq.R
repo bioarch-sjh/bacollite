@@ -9,6 +9,7 @@
 #' @param massmax the maximum mass that a peptide should be. Defaults to 3500
 #' @param verbose whether to print messages to console during processing. Defaults to FALSE
 #' @param max.missed.cleaves the number of missed cleaves to incorporate in the set of peptides.
+#' @import stringr
 #' @export
 #' @examples
 #' parse.seq("GPPGQKGPPGPQGPRGPPGPPGPM")

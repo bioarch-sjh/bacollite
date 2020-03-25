@@ -1,5 +1,12 @@
 
 
+# TYPICAL USAGE:
+#   sample <- load.sample("~/samples","01",c("_1","_2","_3"))
+#   peptides <- load.mcs()
+#   ratios <- peptide.ratio(sample, peptides[1,], peptides[2,])
+
+
+
 #' Get the ratio of ion counts for two peptides
 #'
 #' @param sample the MALDI spectrum - three replictes, as loaded by load.sample()
@@ -7,10 +14,6 @@
 #' @param peptide2 the second peptide, which forms the denominator of the ratio calculation
 #' @param doplot whether or not a plot of the fit should be created (default is FALSE)
 #' @export
-#' @examples
-#' sample <- load.sample("~/samples","01",c("_1","_2","_3"))
-#' peptides <- load.mcs()
-#' ratios <- peptide.ratio(sample, peptides[1,], peptides[2,])
 peptide.ratio <- function(sample, peptide1, peptide2, doplot = F){
 
   fita <- ms_fit(peptide1,sample,doplot=doplot,force = T)

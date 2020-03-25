@@ -14,9 +14,6 @@ xy.ypos.prolines(seq, verbose = F)
 \description{
 count the prolines in the x and y position of a collagen peptide
 }
-\examples{
-xy.pos.prolines("IGQPGAVGPAGIR")
-}
 \keyword{deamidation}
 \keyword{hyroxylation}
 \keyword{isotopes}

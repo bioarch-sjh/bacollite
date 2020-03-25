@@ -5,9 +5,8 @@
 #' Plot the lag correction and fit a line to it for a peptide sample
 #'
 #' @param fn full path of the raw gpm text fi
+#' @importFrom grDevices adjustcolor
 #' @export
-#' @examples
-#' lag_plot(markers,hits)
 lag_plot <- function(markers,hits,no=1,ylim=c(-1.4,1.0),mypoly=2,title="Lag Plot",corlim=0.1,laglim=0.5){
 
   #TODO: check that the data coming in is sane

@@ -5,7 +5,6 @@
 #' @keywords isotopes mass sequence deamidation hyroxylation
 #' @export
 #' @examples
-#' ms_iso_atom(atoms)
 #' ms_iso_atom(c(47,69,15,12,0))
 ms_iso_atom <- function(atoms,verbose=F){
 
@@ -17,9 +16,9 @@ ms_iso_atom <- function(atoms,verbose=F){
     message("ms_iso_atom error: Vector with five integers needed\nreturning NA")
     return (NA)
     }
-    
-  
-  
+
+
+
   if(verbose){
     message(sprintf("Calculating isotope distributions"))
   }

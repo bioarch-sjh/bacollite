@@ -14,7 +14,4 @@ ba_plotseqpeaks(data, myxlim)
 \description{
 plot the peaks of a mass spec
 }
-\examples{
-plotseqpeaks(cd1,myxlim)
-}
 \keyword{bruker}

@@ -5,8 +5,6 @@
 #' @param myxlim c(min,max) for the range of the data you want to plot
 #' @keywords bruker
 #' @export
-#' @examples
-#' plotseqpeaks(cd1,myxlim)
 ba_plotseqpeaks <- function(data,myxlim){
 
   x <- data$mass

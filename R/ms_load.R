@@ -5,6 +5,7 @@
 #' @param name the name of the sample
 #' @param spots a vector of spot names - there *must* be three of these
 #' @param fext the file extension. Default is ".txt"
+#' @importFrom utils read.table
 #' @export
 #' @examples
 #' froot  <- "~/tmp/bioarch_keri/20160909_Keri13/20160909_Keri13_0_"
@@ -41,14 +42,14 @@ load.sample <- function(froot,name="Sample",spots,fext=".txt"){
 
 
 
+# TYPICAL USAGE:
+#   hcd <- ts_index(sheet,"human")
 
 
 #' Get the species index in the mammalian_collagen_sequences sheet
 #'
 #' @param species the name of the species whose peptides will be loaded.
 #' @export
-#' @examples
-#' hcd <- ts_index(sheet,"human")
 ts_index <- function(sheet,spp,verbose=F){
 
   #TODO: There is surely a more efficient way of doing this...

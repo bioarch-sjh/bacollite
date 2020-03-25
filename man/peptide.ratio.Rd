@@ -18,8 +18,3 @@ peptide.ratio(sample, peptide1, peptide2, doplot = F)
 \description{
 Get the ratio of ion counts for two peptides
 }
-\examples{
-sample <- load.sample("~/samples","01",c("_1","_2","_3"))
-peptides <- load.mcs()
-ratios <- peptide.ratio(sample, peptides[1,], peptides[2,])
-}

@@ -53,24 +53,12 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// timesTwo
-NumericVector timesTwo(NumericVector x);
-RcppExport SEXP _bacollite_timesTwo(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(timesTwo(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bacollite_cppIso", (DL_FUNC) &_bacollite_cppIso, 1},
     {"_bacollite_cppIsoAtom", (DL_FUNC) &_bacollite_cppIsoAtom, 5},
     {"_bacollite_cppIsoAtom_p", (DL_FUNC) &_bacollite_cppIsoAtom_p, 1},
     {"_bacollite_aa_seq_to_atoms", (DL_FUNC) &_bacollite_aa_seq_to_atoms, 1},
-    {"_bacollite_timesTwo", (DL_FUNC) &_bacollite_timesTwo, 1},
     {NULL, NULL, 0}
 };
 
