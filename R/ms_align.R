@@ -74,6 +74,16 @@ ms_align <- function(ts,data,txlim,gauss=NA,normlim=NA,cctitle=NA,doplot=F, verb
     nmax = max(nmax,normlim)
   }
 
+
+  #If all the values are the same then 1: normalisation will fail and 2: no correlation - so return zeros:
+  if(length(unique(range(yii$y)))==1){
+    out <- data.frame(
+      cor = 0,
+      lag = 0
+    )
+    return(out)
+  }
+
   yii$y = (yii$y-min(yii$y))/(nmax-min(yii$y))
 
   #TODO: Pass this data out so we can plot it elsewhere

@@ -7,7 +7,11 @@
 ts_index(sheet, spp, verbose = F)
 }
 \arguments{
-\item{species}{the name of the species whose peptides will be loaded.}
+\item{sheet}{the google sheet to search}
+
+\item{spp}{the name of the species whose peptides will be loaded.}
+
+\item{verbose}{verbose output while running}
 }
 \description{
 Get the species index in the mammalian_collagen_sequences sheet

@@ -6,3 +6,6 @@
 
 ^.httr-oauth
 ^withoutR
+^INSTALL.md
+^TUTORIAL.md
+^analysis.md

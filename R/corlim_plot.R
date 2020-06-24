@@ -4,9 +4,12 @@
 
 
 
+#TODO: Document variables properly
+#TODO: Pass in corlim (see line 44,45)
+
 #' get the hits for a range of correlation limit values
 #'
-#' @param cd list of outputs from the ms_fit function for a set of peptides
+#' @param psample outputs from the ms_fit function for a set of peptides
 #' @param corlim a sequence of correlation limit values for thresholding the data
 #' @param laglim maximum acceptable value of lag for each correlation
 #' @keywords bruker

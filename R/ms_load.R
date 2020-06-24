@@ -48,7 +48,9 @@ load.sample <- function(froot,name="Sample",spots,fext=".txt"){
 
 #' Get the species index in the mammalian_collagen_sequences sheet
 #'
-#' @param species the name of the species whose peptides will be loaded.
+#' @param sheet the google sheet to search
+#' @param spp the name of the species whose peptides will be loaded.
+#' @param verbose verbose output while running
 #' @export
 ts_index <- function(sheet,spp,verbose=F){
 
