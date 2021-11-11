@@ -18,8 +18,10 @@ library(devtools)
 Then install bacollite:
 
 ```
-devtools::install_github("bioarch-sjh/bacollite")
+devtools::install_github("bioarch-sjh/bacollite",build_vignettes=T,force=T)
 ```
+
+Note the above command installs the *vignettes* for bacollite (i.e. the long-form help), and forces the install of the github version over any previous install. You can omit these arguments if you know what you are doing.
 
 # Linux-Ubuntu notes
 
