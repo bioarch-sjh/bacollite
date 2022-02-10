@@ -4,7 +4,9 @@
 \name{amino_acid_codes}
 \alias{amino_acid_codes}
 \title{String of valid amino acid codes}
-\format{An object of class \code{character} of length 1.}
+\format{
+An object of class \code{character} of length 1.
+}
 \usage{
 amino_acid_codes
 }

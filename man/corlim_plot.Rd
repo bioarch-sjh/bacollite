@@ -17,7 +17,7 @@ corlim_plot(
 )
 }
 \arguments{
-\item{cd}{list of outputs from the ms_fit function for a set of peptides}
+\item{psample}{outputs from the ms_fit function for a set of peptides}
 
 \item{corlim}{a sequence of correlation limit values for thresholding the data}
 

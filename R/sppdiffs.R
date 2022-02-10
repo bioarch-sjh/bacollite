@@ -1,5 +1,5 @@
 
-#' @name spp.diffs
+
 #' get the differences in sequence between two species.
 #' NB the sequences are sorted by sequence position *within* this function,
 #' so there's no need to sort them before calling it.

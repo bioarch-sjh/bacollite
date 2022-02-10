@@ -4,7 +4,8 @@
 \name{dm_cow}
 \alias{dm_cow}
 \title{Descriminatory peptide markers for cow}
-\format{A data frame with 5 rows and 7 variables:
+\format{
+A data frame with 5 rows and 7 variables:
 \describe{
   \item{seq}{The peptide sequence}
   \item{nhyd}{The number of hydroxylations}
@@ -13,7 +14,8 @@
   \item{seqpos}{The position in the collagen sequence}
   \item{missed.cleaves}{The number of missed cleaves in the peptide}
   \item{collagen}{The collagen number that the sequence came from}
-}}
+}
+}
 \usage{
 dm_cow
 }

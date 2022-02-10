@@ -4,7 +4,9 @@
 \name{bms0.1.2}
 \alias{bms0.1.2}
 \title{EXPERIMENTAL "versioned" copy of bioarch_mammal_sequences}
-\format{An object of class \code{data.frame} with 11 rows and 2102 columns.}
+\format{
+An object of class \code{data.frame} with 11 rows and 2102 columns.
+}
 \usage{
 bms0.1.2
 }

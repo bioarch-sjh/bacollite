@@ -4,7 +4,8 @@
 \name{pepsheep}
 \alias{pepsheep}
 \title{Descriminatory peptide markers for sheep}
-\format{A data frame with 5 rows and 7 variables:
+\format{
+A data frame with 5 rows and 7 variables:
 \describe{
   \item{seq}{The peptide sequence}
   \item{nhyd}{The number of hydroxylations}
@@ -14,7 +15,8 @@
   \item{missed.cleaves}{The number of missed cleaves in the peptide}
   \item{collagen}{The collagen number that the sequence came from}
   \item{prob}{Estimate of the probability of the nhyd value}
-}}
+}
+}
 \usage{
 pepsheep
 }
