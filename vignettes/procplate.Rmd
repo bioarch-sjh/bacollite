@@ -1,0 +1,154 @@
+---
+title: "Processing MALDI plates with Bacollite"
+author: "Simon Hickinbotham"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Processing MALDI Plates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, 	message = FALSE, warning = FALSE, include = FALSE}
+library(bacollite)
+```
+
+## Introduction
+
+A lot of ZOOMS work involves repeated analysis of large batches of data, usually 
+presented in the form of datasets for individual MALDI plates. In order to repeatedly
+apply `bacollite` analysis to such datasets, we have developed a function called `procplate`
+that automates this analysis. The idea is simple: each plate has a corresponding
+.csv file that describes the file naming convention, the sample ID, and the position 
+of the three replicates, the procplate function takes this data in as an argument, but
+it also takes the name of the analysis function as another argument, and thus 
+applies the function to the data in each row of the csv.
+
+This vignette covers how to set up an analysis to use `procplate`. We commence with 
+a simple example, showing how to generate average spectra, and then move on to show
+how to use procplate to carry out the analysis in the companion vignette "SI Aligning samples to peptides". 
+
+
+## generating an average spectrum for each sample on a MALDI plate
+
+This can now be done with three lines of code: 
+
+```{r eval=FALSE, include=TRUE}
+require(bacollite)
+pd <- read.csv("platemap.csv",stringsAsFactors = F)
+avg <- pplate(pd,averageMSD,path="rawdata")
+```
+
+
+Going through this line by line: 
+
+- `require(bacollite)` loads the bacollite package
+- `pd <- read.csv("platemap.csv",stringsAsFactors = F)` loads the job from a file called "platemap.csv" that describes the arrangement of data on the platemap (see below for details). The `stringsAsFactors=F` statement tells R not to try and do anything clever with non-numeric values in the file. 
+- `avg <- pplate(pd,averageMSD,path="rawdata")` does the processing of the plate data. There are three things inside the brackets: `pd`, the data object; `averageMSD`, the function which does the averaging, and `path=rawdata`, indicating that the platemap data is in the sub-folder called "rawdata". 
+
+The platemap file - called "platemap.csv" in the example above - is best illustrated by example:
+
+```
+froot,sampleID,spot1,spot2,spot3,manualID
+20210617_Camilla_,L4HF.40.F1,A1,A4,A7
+20210617_Camilla_,A419,A2,A5,A8
+20210617_Camilla_,A420,A3,A6,A9
+```
+
+The first line of the file describes the names of each column of data. These are:
+
+- `froot`: this is the part of the filename for each spot that is common to the three spots. You can see that in this example, this is the same for all samples on the plate, i.e. `20210617_Camilla`. 
+- `sampleID` 
+
+
+
+
+
+*NOTE:* There are many other options for generating the `pd` data object
+
+
+## Worked example using bacollite data 
+
+Averaged spectra are useful for a "first pass" visual examination of a sample, 
+and bacollite now provides this functionality. We are going to use this as an
+example task for processing a whole plates worth of data. However, since such datasets
+are large, it is unfeasible for bacollite to come bundled with data for a whole plate. So we'll have to fudge an example, imaining that  a 
+
+
+### Loading a reference data set
+
+The bacollite package comes with some data files that we can use during this tutorial, but we need some R code to find where they are on our system. Let's get R to tell us the folder that the data is in: 
+
+```{r}
+fpath <- system.file("extdata",package="bacollite")
+```
+
+We'll be using the `fpath` variable in what follows. With your own data, you would know where the samples are on your file system and you'd do something like `fpath <- "c:\mydata\"`
+
+The MALDI data files that we are using are called:
+
+```
+20150326_SF_YG65_94_I11.txt  
+20150326_SF_YG65_94_I14.txt  
+20150326_SF_YG65_94_I17.txt
+```
+You can see that the last part of the file name before the "`.txt`" is the spot reference, and there are three spots: `I11`, `I14` and `I17`. We need this information to use the `load.sample` function to load the three samples into R, like this: 
+
+```{r message=FALSE, warning=FALSE}
+library(bacollite)
+froot = sprintf("%s/20150326_SF_YG65_94_",fpath)
+sample <- load.sample(froot = froot,spots = c("I11","I14","I17"),name="folio 42")
+```
+
+
+
+
+
+
+
+
+
+
+
+### Species ID for a whole plate
+
+
+
+
+## Explainer: Passing functions into functions as arguments
+
+The ability of bacollite to process a plate with a range of different outputs is possible because R allows one function to be passed into another function as an argument. This is fairly advanced topic, and if you just want to process your data then you don't need to worry about this, but for the curious, here's a very simple example of how this is done. 
+
+Let's start with a function that adds two numbers together: 
+
+
+```{r}
+myadd <- function(a,b){
+  return(a + b)
+}
+myadd(7,8)
+```
+
+Then let's suppose we wanted a function that multiplied the output of *any* function by another number. here, *we want to apply this to a range of different function outputs*. How might we code this? The answer is to pass a function in as an argument, just as you might do a variable or a data.frame. 
+
+
+```{r}
+cfun <- function(c,FUN,...){
+  
+  r <- FUN(...)
+  return(r*c)
+}
+
+cfun(5,myadd,1,2)
+```
+Some points:
+
+- `cfun` multiplies the output of the function `FUN` by `c`
+- the function `myadd` is passed into `cfun` - but any other function could also be passed in
