@@ -24,11 +24,18 @@ load.sample <- function(froot,name="Sample",spots,fext=".txt"){
     return(NA)
   }
 
+  f1 <- sprintf("%s%s%s",froot,spots[1],fext)
+  f2 <- sprintf("%s%s%s",froot,spots[1],fext)
+  f3 <- sprintf("%s%s%s",froot,spots[1],fext)
+
+  if(!file.exists(f1)){message(sprintf("File %s doesn't exist",f1));return(NULL)}
+  if(!file.exists(f2)){message(sprintf("File %s doesn't exist",f2));return(NULL)}
+  if(!file.exists(f3)){message(sprintf("File %s doesn't exist",f3));return(NULL)}
 
   #TODO: we need error checking on this!
-  s1 <- read.table(sprintf("%s%s%s",froot,spots[1],fext))
-  s2 <- read.table(sprintf("%s%s%s",froot,spots[2],fext))
-  s3 <- read.table(sprintf("%s%s%s",froot,spots[3],fext))
+  s1 <- read.table(f1)
+  s2 <- read.table(f2)
+  s3 <- read.table(f3)
 
   colnames(s1) <- c("mass","intensity")
   colnames(s2) <- c("mass","intensity")
