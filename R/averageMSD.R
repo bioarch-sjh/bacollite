@@ -8,7 +8,19 @@
 #'   \item{mass}{The interpolated mass values}
 #'   \item{intensity}{The average intensity values}
 #' @export
-averageMSD<-function(reps,resolution = 0.01){
+#averageMSD<-function(reps,resolution = 0.01){
+averageMSD<-function(path,pdr,resolution = 0.01){
+
+  if(nrow(pdr)!=1){
+    message("ERROR: data input to averageMSD has %d rows, should have 1\nreturning NA...")
+    return(NA)
+  }
+
+
+  fr <- sprintf("%s/%s",path,pdr$froot)
+  spots <- c(pdr$spot1,pdr$spot2,pdr$spot3)
+  reps<- load.sample(fr,pdr$sampleID,spots)
+
   minmass <- floor(min(c(reps$s1$mass,reps$s2$mass,reps$s3$mass)))
   maxmass <- ceiling(max(c(reps$s1$mass,reps$s2$mass,reps$s3$mass)))
   xout = seq(from = minmass, to = maxmass, by = resolution)
