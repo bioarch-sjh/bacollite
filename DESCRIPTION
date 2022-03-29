@@ -24,3 +24,4 @@ Suggests: knitr,
     testthat
 VignetteBuilder: knitr
 LinkingTo: Rcpp
+Encoding: UTF-8

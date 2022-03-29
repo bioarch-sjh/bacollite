@@ -4,8 +4,6 @@
 #' @param lbl the lower bound limit
 #' @param ubl the upper bound limit
 #' @return the subrange
-#' @example
-#' sub <- ms_subrange(spectrum,1589.5,1595.5)
 #' @export
 ms_subrange <- function(ms,lbl,ubl){
   subms <- ms[
@@ -14,3 +12,8 @@ ms_subrange <- function(ms,lbl,ubl){
   #TODO: find out why we *didn't* need the following and what the effects
   return(subms)
 }
+
+
+# todo: fix the following example so that it uses internal data...
+##' @example
+##' sub <- ms_subrange(spectrum,1589.5,1595.5)

@@ -4,7 +4,7 @@
 \alias{averageMSD}
 \title{Generate an average of three MALDI spectrum samples}
 \usage{
-averageMSD(reps, resolution = 0.01)
+averageMSD(path, pdr, resolution = 0.01)
 }
 \arguments{
 \item{reps}{a data structure holding three objects, S1, S2 and S3, each of which has a column called `mass` and `intensity`}

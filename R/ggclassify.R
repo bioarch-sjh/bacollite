@@ -1,5 +1,5 @@
 
-classify <- function(froot,spots,pepnames,pepdata,name,manualID="unknown",gauss = 0.3,verbose=F,doplot=T){
+ggclassify <- function(froot,spots,pepnames,pepdata,name,manualID="unknown",gauss = 0.3,verbose=F,doplot=T){
 
   sample <- load.sample(froot = froot,spots = spots,name=name)
 
