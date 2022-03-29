@@ -1,7 +1,7 @@
 Package: bacollite
 Type: Package
 Title: Analysis of MALDI and LC-MS/MS spectral data using sequence data (mainly for collagen)
-Version: 1.1
+Version: 1.0.1
 Date: 2022-02-10
 Authors@R: c(
             person("Simon", "Hickinbotham", email = "sjh@palaeome.org", role = c("aut", "cre")),
