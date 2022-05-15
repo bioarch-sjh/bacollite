@@ -66,7 +66,7 @@ ba_gxy_probs <- function(seq, xprob = 0.05, yprob = 0.95, xyxprob = 0.5, xyyprob
       pmod <- ppos%%3
       pidx <- NA
 
-      message(sprintf("Gpos is %d, pmod is %d",gpos,pmod))
+      if(verbose)message(sprintf("Gpos is %d, pmod is %d",gpos,pmod))
       if(gpos == pmod){
         if(verbose)
           message(sprintf("Warning! P at position %d is out of sync with GXY",ps$start[pp]))
