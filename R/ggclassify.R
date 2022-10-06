@@ -47,6 +47,10 @@ ggclassify <- function(froot,spots,pepnames,pepdata,name,manualID="unknown",gaus
   }
 
   if(doplot){
+    message("message start:")
+    message(sample$name)
+    message(manualID)
+    message("message end:")
     plot.classification(result,sample$name,manualID,corlim,cld,labs)
   }
 

@@ -25,8 +25,8 @@ load.sample <- function(froot,name="Sample",spots,fext=".txt"){
   }
 
   f1 <- sprintf("%s%s%s",froot,spots[1],fext)
-  f2 <- sprintf("%s%s%s",froot,spots[1],fext)
-  f3 <- sprintf("%s%s%s",froot,spots[1],fext)
+  f2 <- sprintf("%s%s%s",froot,spots[2],fext)
+  f3 <- sprintf("%s%s%s",froot,spots[3],fext)
 
   if(!file.exists(f1)){message(sprintf("File %s doesn't exist",f1));return(NULL)}
   if(!file.exists(f2)){message(sprintf("File %s doesn't exist",f2));return(NULL)}
